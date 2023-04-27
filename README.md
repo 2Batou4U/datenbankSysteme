@@ -10,6 +10,9 @@ Denen unter euch, die trotzdem ihr Glück versuchen wollen, wünsche ich viel Gl
 ![Der Autor](https://media.tenor.com/GPreVwRZ3NgAAAAC/funny-monkey-eat.gif)
 
 Sommersemester 2023
+
 Batou
+
 Datenbanksysteme
+
 Universität Osnabrück
