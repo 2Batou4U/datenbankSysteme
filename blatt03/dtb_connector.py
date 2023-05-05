@@ -26,7 +26,11 @@ def add_row(table_name: str, row_tuple: tuple) -> str:
         rows_to_be_inserted += f"""{row}{',' if idx + 1 != len(row_tuple) else ''}"""
 
     add_row_query = f"""INSERT INTO {table_name} VALUES {rows_to_be_inserted};"""
-    cursor.execute(add_row_query)
+    try:
+        cursor.execute(add_row_query)
+    except mariadb.IntegrityError as ierr:
+        print(ierr)
+
     return add_row_query
 
 
