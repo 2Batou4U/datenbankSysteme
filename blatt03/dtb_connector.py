@@ -3,25 +3,6 @@ import sys
 import mariadb
 
 
-def get_connection() -> mariadb.Cursor:
-    # Connect to MariaDB Platform
-    try:
-        conn = mariadb.connect(
-            user="adrian",
-            password="pomi2013S",
-            host="152.89.239.24",
-            port=3306,
-            database="uniDB",
-            autocommit=True,
-        )
-    except mariadb.Error as e:
-        print(f"Error connecting to MariaDB Platform: {e}")
-        sys.exit(1)
-
-    # Get Cursor
-    return conn.cursor()
-
-
 def alter_column(table_name: str, column_name: str, column_type: str) -> str:
     cursor = get_connection()
     check_table_query = f"""SHOW COLUMNS FROM `{table_name}` LIKE '{column_name}';"""
