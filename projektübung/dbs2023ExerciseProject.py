@@ -1,3 +1,5 @@
+import json
+
 import mariadb
 import sys
 # hide password
@@ -20,6 +22,12 @@ class DatabaseProject:
     def __init__(self):
         self.connection: mariadb.Connection | None = None
 
+        with open('queries.json') as query_json:
+            self.queries = json.load(query_json)
+
+        with open('commands.json') as command_json:
+            self.commands = json.load(command_json)
+
     def connectToMariaDB(self, user: str, pw, host: str, port: int, database: str):
         try:
             self.connection = mariadb.connect(
@@ -41,18 +49,32 @@ class DatabaseProject:
 
     # create all tables for the project.
     def createProjectDBTables(self):
+        cursor = self.connection.cursor()
+
+        for query in self.queries:
+            print(f"Erstelle Tabelle '{query}'...")
+            cursor.execute(self.queries[query])
+
+        self.connection.commit()
         pass
 
     # delete all project related tables
     def deleteAllProjectTables(self):
+        cursor = self.connection.cursor()
+
+        print("Lösche alle Tabellen...")
+        for command in self.commands['delete']:
+            cursor.execute(command)
+
+        self.connection.commit()
         pass
 
     # yes handling IDs manually is not optimal, however for our little project and for testing this should be
     # manageable! Implement all create and delete methods for each entity
-    def createEigenschaft(self, itemID: int, name: str):
+    def createEigenschaft(self, eigenschaftenID: int, name: str):
         pass
 
-    def createItem(self, eigenschaftenID: int, name: str, geldwert: int, besitzerID: int):
+    def createItem(self, itemID: int, name: str, geldwert: int, besitzerID: int):
         pass
 
     def createEigenschaftenBesitzen(self, itemID: int, eigenschaftenID: int):
