@@ -8,5 +8,24 @@
 		"EXECUTE stmt1;",
 		"DEALLOCATE PREPARE stmt1;",
 		"SET FOREIGN_KEY_CHECKS=1;"
-	]
+	],
+	"create_eigenschaft": "insert into eigenschaften (eigenschaften_id, beschreibung) values ({eigenschaftenID}, '{name}');",
+	"create_item": "insert into item (item_id, name, geldwert, besitzer) values ({itemID}, '{name}', {geldwert}, {besitzerID});",
+	"create_shop": [
+		"insert into besitzer (besitzer_id, name, geld) values ({besitzerID}, '{name}', {geld});",
+		"insert into ort (besitzer_id, adresse) values ({besitzerID}, '{adresse}');",
+		"insert into shop (besitzer_id, ladenbesitzer) values ({besitzerID}, '{ladenBesitzer}');"
+	],
+	"create_dungeon": [
+		"insert into besitzer (besitzer_id, name, geld) values ({besitzerID}, '{name}', {geld});",
+		"insert into ort (besitzer_id, adresse) values ({besitzerID}, '{adresse}');",
+		"insert into dungeon (besitzer_id, schwierigkeitsgrad) values ({besitzerID}, {schwierigkeitsgrad});"
+	],
+	"create_team": [
+		"insert into besitzer (besitzer_id, name, geld) values ({besitzerID}, '{avatarName}', {geld});",
+		"insert into avatar (besitzer_id, staerke, magie, geschwindigkeit, rang, waffenpref, geburtsdatum, geburtsort, istin) values ({besitzerID}, {staerke}, {magie}, {geschwindigkeit}, {rang}, '{waffenPref}', DATE '{geburtsdatum}', 'geburtsort', istIn);",
+		"insert into haustier (haustier_id, name, kampfkraft, rasse, niedlichkeitsfaktor) values ({haustierID}, '{haustierName}', {kampfkraft}, '{rasse}', {niedlichkeitsfaktor});",
+		"insert into team (besitzer_id, haustier_id, affinitaet) values ({besitzerID}, {haustierID}, {affinitaet});"
+	],
+	"create_duellieren": "insert into duellieren (AID1, AID2) values ({avatar1}, {avatar2});"
 }

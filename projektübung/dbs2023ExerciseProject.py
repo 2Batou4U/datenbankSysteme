@@ -72,27 +72,64 @@ class DatabaseProject:
     # yes handling IDs manually is not optimal, however for our little project and for testing this should be
     # manageable! Implement all create and delete methods for each entity
     def createEigenschaft(self, eigenschaftenID: int, name: str):
-        pass
+        cursor = self.connection.cursor()
+        try:
+            cursor.execute(self.commands['create_eigenschaft'].format(eigenschaftenID=eigenschaftenID, name=name))
+        except mariadb.IntegrityError:
+            print("Eintrag existiert bereits! :(")
+        self.connection.commit()
 
     def createItem(self, itemID: int, name: str, geldwert: int, besitzerID: int):
-        pass
+        cursor = self.connection.cursor()
+        try:
+            cursor.execute(self.commands['create_item'].format(itemID=itemID, name=name, geldwert=geldwert, besitzerID=besitzerID))
+        except mariadb.IntegrityError:
+            print("Eintrag existiert bereits! :(")
+        self.connection.commit()
 
     def createEigenschaftenBesitzen(self, itemID: int, eigenschaftenID: int):
         pass
 
     def createShop(self, besitzerID: int, name: str, geld: int, adresse: str, ladenBesitzer: str):
-        pass
+        cursor = self.connection.cursor()
+        try:
+           cursor.execute(self.commands['create_shop'][0].format(besitzerID=besitzerID, name=name, geld=geld))
+           cursor.execute(self.commands['create_shop'][1].format(besitzerID=besitzerID, adresse=adresse))
+           cursor.execute(self.commands['create_shop'][2].format(besitzerID=besitzerID, ladenBesitzer=ladenBesitzer))
+        except mariadb.IntegrityError:
+            print("Eintrag existiert bereits! :(")
+        self.connection.commit()
 
     def createDungeon(self, besitzerID: int, name: str, geld: int, adresse: str, schwierigkeitsgrad: int):
-        pass
+        cursor = self.connection.cursor()
+        try:
+            cursor.execute(self.commands['create_dungeon'][0].format(besitzerID=besitzerID, name=name, geld=geld))
+            cursor.execute(self.commands['create_dungeon'][1].format(besitzerID=besitzerID, adresse=adresse))
+            cursor.execute(self.commands['create_dungeon'][2].format(besitzerID=besitzerID, schwierigkeitsgrad=schwierigkeitsgrad))
+        except mariadb.IntegrityError:
+            print("Eintrag existiert bereits! :(")
+        self.connection.commit()
 
-    def createTeam(self, besitzerID: int, avatarName: str, geld: int, stärke: int, magie: int, geschwindigkeit: int,
-                   rang: int, waffenPref: str, geburtsdatum: str, geburtsort: str, istIn: int, affinität: int,
-                   haustierID: int, haustierName: str, kampfkraft: int, rasse: str, niedichkeitsfaktor: float):
-        pass
+    def createTeam(self, besitzerID: int, avatarName: str, geld: int, staerke: int, magie: int, geschwindigkeit: int,
+                   rang: int, waffenPref: str, geburtsdatum: str, geburtsort: str, istIn: int, affinitaet: int,
+                   haustierID: int, haustierName: str, kampfkraft: int, rasse: str, niedlichkeitsfaktor: float):
+        cursor = self.connection.cursor()
+        try:
+            cursor.execute(self.commands['create_team'][0].format(besitzerID=besitzerID, avatarName=avatarName, geld=geld))
+            cursor.execute(self.commands['create_team'][1].format(besitzerID=besitzerID, staerke=staerke, magie=magie, geschwindigkeit=geschwindigkeit, rang=rang, waffenPref=waffenPref, geburtsdatum=geburtsdatum, geburtsort=geburtsort, istIn=istIn))
+            cursor.execute(self.commands['create_team'][2].format(haustierID=haustierID, haustierName=haustierName, kampfkraft=kampfkraft, rasse=rasse, niedlichkeitsfaktor=niedlichkeitsfaktor))
+            cursor.execute(self.commands['create_team'][3].format(besitzerID=besitzerID, haustierID=haustierID, affinitaet=affinitaet))
+        except mariadb.IntegrityError:
+            print("Eintrag existiert bereits! :(")
+        self.connection.commit()
 
     def createDuellieren(self, avatar1: int, avatar2: int):
-        pass
+        cursor = self.connection.cursor()
+        try:
+            cursor.execute(self.commands['create_duellieren'].format(avatar1=avatar1, avatar2=avatar2))
+        except mariadb.IntegrityError as err:
+            print(err)
+        self.connection.commit()
 
     def deleteEigenschaft(self, id: int):
         pass
