@@ -82,7 +82,8 @@ class DatabaseProject:
     def createItem(self, itemID: int, name: str, geldwert: int, besitzerID: int):
         cursor = self.connection.cursor()
         try:
-            cursor.execute(self.commands['create_item'].format(itemID=itemID, name=name, geldwert=geldwert, besitzerID=besitzerID))
+            cursor.execute(
+                self.commands['create_item'].format(itemID=itemID, name=name, geldwert=geldwert, besitzerID=besitzerID))
         except mariadb.IntegrityError:
             print("Eintrag existiert bereits! :(")
         self.connection.commit()
@@ -93,9 +94,9 @@ class DatabaseProject:
     def createShop(self, besitzerID: int, name: str, geld: int, adresse: str, ladenBesitzer: str):
         cursor = self.connection.cursor()
         try:
-           cursor.execute(self.commands['create_shop'][0].format(besitzerID=besitzerID, name=name, geld=geld))
-           cursor.execute(self.commands['create_shop'][1].format(besitzerID=besitzerID, adresse=adresse))
-           cursor.execute(self.commands['create_shop'][2].format(besitzerID=besitzerID, ladenBesitzer=ladenBesitzer))
+            cursor.execute(self.commands['create_shop'][0].format(besitzerID=besitzerID, name=name, geld=geld))
+            cursor.execute(self.commands['create_shop'][1].format(besitzerID=besitzerID, adresse=adresse))
+            cursor.execute(self.commands['create_shop'][2].format(besitzerID=besitzerID, ladenBesitzer=ladenBesitzer))
         except mariadb.IntegrityError:
             print("Eintrag existiert bereits! :(")
         self.connection.commit()
@@ -105,7 +106,8 @@ class DatabaseProject:
         try:
             cursor.execute(self.commands['create_dungeon'][0].format(besitzerID=besitzerID, name=name, geld=geld))
             cursor.execute(self.commands['create_dungeon'][1].format(besitzerID=besitzerID, adresse=adresse))
-            cursor.execute(self.commands['create_dungeon'][2].format(besitzerID=besitzerID, schwierigkeitsgrad=schwierigkeitsgrad))
+            cursor.execute(
+                self.commands['create_dungeon'][2].format(besitzerID=besitzerID, schwierigkeitsgrad=schwierigkeitsgrad))
         except mariadb.IntegrityError:
             print("Eintrag existiert bereits! :(")
         self.connection.commit()
@@ -115,10 +117,17 @@ class DatabaseProject:
                    haustierID: int, haustierName: str, kampfkraft: int, rasse: str, niedlichkeitsfaktor: float):
         cursor = self.connection.cursor()
         try:
-            cursor.execute(self.commands['create_team'][0].format(besitzerID=besitzerID, avatarName=avatarName, geld=geld))
-            cursor.execute(self.commands['create_team'][1].format(besitzerID=besitzerID, staerke=staerke, magie=magie, geschwindigkeit=geschwindigkeit, rang=rang, waffenPref=waffenPref, geburtsdatum=geburtsdatum, geburtsort=geburtsort, istIn=istIn))
-            cursor.execute(self.commands['create_team'][2].format(haustierID=haustierID, haustierName=haustierName, kampfkraft=kampfkraft, rasse=rasse, niedlichkeitsfaktor=niedlichkeitsfaktor))
-            cursor.execute(self.commands['create_team'][3].format(besitzerID=besitzerID, haustierID=haustierID, affinitaet=affinitaet))
+            cursor.execute(
+                self.commands['create_team'][0].format(besitzerID=besitzerID, avatarName=avatarName, geld=geld))
+            cursor.execute(self.commands['create_team'][1].format(besitzerID=besitzerID, staerke=staerke, magie=magie,
+                                                                  geschwindigkeit=geschwindigkeit, rang=rang,
+                                                                  waffenPref=waffenPref, geburtsdatum=geburtsdatum,
+                                                                  geburtsort=geburtsort, istIn=istIn))
+            cursor.execute(self.commands['create_team'][2].format(haustierID=haustierID, haustierName=haustierName,
+                                                                  kampfkraft=kampfkraft, rasse=rasse,
+                                                                  niedlichkeitsfaktor=niedlichkeitsfaktor))
+            cursor.execute(self.commands['create_team'][3].format(besitzerID=besitzerID, haustierID=haustierID,
+                                                                  affinitaet=affinitaet))
         except mariadb.IntegrityError:
             print("Eintrag existiert bereits! :(")
         self.connection.commit()
