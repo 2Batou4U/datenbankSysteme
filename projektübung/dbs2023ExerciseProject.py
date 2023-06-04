@@ -93,7 +93,7 @@ class DatabaseProject:
         cursor = self.connection.cursor()
         try:
             cursor.execute(self.commands['create_item'].format(itemID=itemID, name=name, geldwert=geldwert, besitzerID=besitzerID))
-        except mariadb.IntegrityError as err:
+        except mariadb.IntegrityError:
             print(f"{bcolors.FAIL}Eintrag existiert bereits! :({bcolors.ENDC}")
         self.connection.commit()
 
@@ -285,9 +285,7 @@ class DatabaseProject:
     def doExerciseTK1(self):
         cursor = self.connection.cursor()
         try:
-            cursor.execute("select * from item i1 right join avatar a on i1.besitzer = a.besitzer_id")
-            # select * from item i left join besitzer b on b.besitzer_id = i.besitzer left join avatar a on b.besitzer_id = a.besitzer_id
-            # "select * from item i left join besitzer b on b.besitzer_id = i.besitzer left join shop s on b.besitzer_id = s.besitzer_id"
+            cursor.execute("select b1.name as avatar, b2.name as shop, s_item as item from (select a.besitzer_id a_name, i1.name as a_item, i1.geldwert as a_geldwert, s.besitzer_id as s_name, i2.name as s_item, i2.geldwert as s_geldwert from (item i1 left join avatar a on i1.besitzer = a.besitzer_id), (item i2 left join shop s on i2.besitzer = s.besitzer_id) where a.besitzer_id is not null) as output join besitzer b1 on a_name=b1.besitzer_id join besitzer b2 on s_name=b2.besitzer_id where a_item=s_item and s_geldwert>a_geldwert;")
             for data in cursor:
                 print(f"{bcolors.OKGREEN}Test {data}{bcolors.ENDC}")
 
@@ -296,12 +294,28 @@ class DatabaseProject:
 
     # Selektieren Sie alle Eigenschaften, wo jedes Item mit dieser Eigenschaft einen Geldwert von größer 1000 hat. 
     def doExerciseTK2(self):
-        pass
+        cursor = self.connection.cursor()
+        try:
+            cursor.execute("Select distinct eigenschaften_id from eigenschaftenbesitzen right join item where geldwert > 1000")
+            for data in cursor:
+                print(f"{bcolors.OKGREEN}Test {data}{bcolors.ENDC}")
+
+        except mariadb.IntegrityError:
+            print(f"{bcolors.FAIL}Da ist etwas schief gelaufen :({bcolors.ENDC}")
+
 
     # Selektieren Sie jeden Dungeon, in welchem jeder sich vor Ort befindenden Avatar nicht das Item 
     # ''Datenbanksysteme-Schein'' besitzt, es jedoch im Dungeon enthalten ist.
     def doExerciseTK3(self):
-        pass
+        cursor = self.connection.cursor()
+        try:
+            cursor.execute(
+                "Select distinct * from besitzer left join item where")
+            for data in cursor:
+                print(f"{bcolors.OKGREEN}Test {data}{bcolors.ENDC}")
+
+        except mariadb.IntegrityError:
+            print(f"{bcolors.FAIL}Da ist etwas schief gelaufen :({bcolors.ENDC}")
 
     # Geben Sie jede Avatar ID aus, welcher zu seinem Haustier-Partner eine Affinität größer 80% hat.
     def doExerciseDK1(self):
