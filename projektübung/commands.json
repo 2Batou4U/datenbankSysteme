@@ -24,7 +24,7 @@
 	],
 	"create_team": [
 		"insert into besitzer (besitzer_id, name, geld) values ({besitzerID}, '{avatarName}', {geld});",
-		"insert into avatar (besitzer_id, staerke, magie, geschwindigkeit, rang, waffenpref, geburtsdatum, geburtsort, istin) values ({besitzerID}, {staerke}, {magie}, {geschwindigkeit}, {rang}, '{waffenPref}', DATE '{geburtsdatum}', 'geburtsort', istIn);",
+		"insert into avatar (besitzer_id, staerke, magie, geschwindigkeit, rang, waffenpref, geburtsdatum, geburtsort, istin) values ({besitzerID}, {staerke}, {magie}, {geschwindigkeit}, {rang}, '{waffenPref}', DATE '{geburtsdatum}', '{geburtsort}', {istIn});",
 		"insert into haustier (haustier_id, name, kampfkraft, rasse, niedlichkeitsfaktor) values ({haustierID}, '{haustierName}', {kampfkraft}, '{rasse}', {niedlichkeitsfaktor});",
 		"insert into team (besitzer_id, haustier_id, affinitaet) values ({besitzerID}, {haustierID}, {affinitaet});"
 	],
