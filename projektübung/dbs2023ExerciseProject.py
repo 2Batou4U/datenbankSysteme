@@ -56,7 +56,6 @@ class DatabaseProject:
             cursor.execute(self.queries[query])
 
         self.connection.commit()
-        pass
 
     # delete all project related tables
     def deleteAllProjectTables(self):
@@ -67,7 +66,6 @@ class DatabaseProject:
             cursor.execute(command)
 
         self.connection.commit()
-        pass
 
     # yes handling IDs manually is not optimal, however for our little project and for testing this should be
     # manageable! Implement all create and delete methods for each entity
@@ -82,21 +80,26 @@ class DatabaseProject:
     def createItem(self, itemID: int, name: str, geldwert: int, besitzerID: int):
         cursor = self.connection.cursor()
         try:
-            cursor.execute(
-                self.commands['create_item'].format(itemID=itemID, name=name, geldwert=geldwert, besitzerID=besitzerID))
+            cursor.execute(self.commands['create_item'].format(itemID=itemID, name=name, geldwert=geldwert, besitzerID=besitzerID))
         except mariadb.IntegrityError:
             print("Eintrag existiert bereits! :(")
         self.connection.commit()
 
     def createEigenschaftenBesitzen(self, itemID: int, eigenschaftenID: int):
-        pass
+        cursor = self.connection.cursor()
+        try:
+            cursor.execute(
+                self.commands['create_eigenschaftenBesitzen'].format(itemID=itemID, eigenschaftenID=eigenschaftenID))
+        except mariadb.IntegrityError:
+            print("Eintrag existiert bereits! :(")
+        self.connection.commit()
 
     def createShop(self, besitzerID: int, name: str, geld: int, adresse: str, ladenBesitzer: str):
         cursor = self.connection.cursor()
         try:
-            cursor.execute(self.commands['create_shop'][0].format(besitzerID=besitzerID, name=name, geld=geld))
-            cursor.execute(self.commands['create_shop'][1].format(besitzerID=besitzerID, adresse=adresse))
-            cursor.execute(self.commands['create_shop'][2].format(besitzerID=besitzerID, ladenBesitzer=ladenBesitzer))
+           cursor.execute(self.commands['create_shop'][0].format(besitzerID=besitzerID, name=name, geld=geld))
+           cursor.execute(self.commands['create_shop'][1].format(besitzerID=besitzerID, adresse=adresse))
+           cursor.execute(self.commands['create_shop'][2].format(besitzerID=besitzerID, ladenBesitzer=ladenBesitzer))
         except mariadb.IntegrityError:
             print("Eintrag existiert bereits! :(")
         self.connection.commit()
@@ -106,8 +109,7 @@ class DatabaseProject:
         try:
             cursor.execute(self.commands['create_dungeon'][0].format(besitzerID=besitzerID, name=name, geld=geld))
             cursor.execute(self.commands['create_dungeon'][1].format(besitzerID=besitzerID, adresse=adresse))
-            cursor.execute(
-                self.commands['create_dungeon'][2].format(besitzerID=besitzerID, schwierigkeitsgrad=schwierigkeitsgrad))
+            cursor.execute(self.commands['create_dungeon'][2].format(besitzerID=besitzerID, schwierigkeitsgrad=schwierigkeitsgrad))
         except mariadb.IntegrityError:
             print("Eintrag existiert bereits! :(")
         self.connection.commit()
@@ -117,17 +119,10 @@ class DatabaseProject:
                    haustierID: int, haustierName: str, kampfkraft: int, rasse: str, niedlichkeitsfaktor: float):
         cursor = self.connection.cursor()
         try:
-            cursor.execute(
-                self.commands['create_team'][0].format(besitzerID=besitzerID, avatarName=avatarName, geld=geld))
-            cursor.execute(self.commands['create_team'][1].format(besitzerID=besitzerID, staerke=staerke, magie=magie,
-                                                                  geschwindigkeit=geschwindigkeit, rang=rang,
-                                                                  waffenPref=waffenPref, geburtsdatum=geburtsdatum,
-                                                                  geburtsort=geburtsort, istIn=istIn))
-            cursor.execute(self.commands['create_team'][2].format(haustierID=haustierID, haustierName=haustierName,
-                                                                  kampfkraft=kampfkraft, rasse=rasse,
-                                                                  niedlichkeitsfaktor=niedlichkeitsfaktor))
-            cursor.execute(self.commands['create_team'][3].format(besitzerID=besitzerID, haustierID=haustierID,
-                                                                  affinitaet=affinitaet))
+            cursor.execute(self.commands['create_team'][0].format(besitzerID=besitzerID, avatarName=avatarName, geld=geld))
+            cursor.execute(self.commands['create_team'][1].format(besitzerID=besitzerID, staerke=staerke, magie=magie, geschwindigkeit=geschwindigkeit, rang=rang, waffenPref=waffenPref, geburtsdatum=geburtsdatum, geburtsort=geburtsort, istIn=istIn))
+            cursor.execute(self.commands['create_team'][2].format(haustierID=haustierID, haustierName=haustierName, kampfkraft=kampfkraft, rasse=rasse, niedlichkeitsfaktor=niedlichkeitsfaktor))
+            cursor.execute(self.commands['create_team'][3].format(besitzerID=besitzerID, haustierID=haustierID, affinitaet=affinitaet))
         except mariadb.IntegrityError:
             print("Eintrag existiert bereits! :(")
         self.connection.commit()
@@ -141,29 +136,84 @@ class DatabaseProject:
         self.connection.commit()
 
     def deleteEigenschaft(self, id: int):
-        pass
+        cursor = self.connection.cursor()
+        try:
+            cursor.execute(self.commands['delete_eigenschaft'].format(id=id))
+
+        except mariadb.IntegrityError:
+            print("Zu löschender Eintrag existiert nicht! :(")
+        self.connection.commit()
 
     def deleteItem(self, id: int):
-        pass
+        cursor = self.connection.cursor()
+        try:
+            cursor.execute(self.commands['delete_item'].format(id=id))
+
+        except mariadb.IntegrityError:
+            print("Zu löschender Eintrag existiert nicht! :(")
+        self.connection.commit()
 
     def deleteEigenschaftenBesitzen(self, itemId: int, eigenschaftenID: int):
-        pass
+        cursor = self.connection.cursor()
+        try:
+            cursor.execute(self.commands['delete_eigenschaftenbesitzen'].format(itemID=itemId, eigenschaftenID=eigenschaftenID))
+
+        except mariadb.IntegrityError:
+            print("Zu löschender Eintrag existiert nicht! :(")
+        self.connection.commit()
 
     def deleteShop(self, id: int):
-        pass
+        cursor = self.connection.cursor()
+        try:
+            cursor.execute(self.commands['delete_shop'].format(id=id))
+        except mariadb.IntegrityError:
+            print("Zu löschender Eintrag existiert nicht! :(")
+        self.connection.commit()
 
     def deleteDungeon(self, id: int):
-        pass
+        cursor = self.connection.cursor()
+        try:
+            cursor.execute(
+                self.commands['delete_dungeon'].format(id=id))
 
+        except mariadb.IntegrityError:
+            print("Zu löschender Eintrag existiert nicht! :(")
+        self.connection.commit()
     def deleteTeam(self, besitzerID: int, haustierID: int):
-        pass
+        cursor = self.connection.cursor()
+        try:
+            cursor.execute(
+                self.commands['delete_team'].format(haustierID=haustierID))
+
+        except mariadb.IntegrityError:
+            print("Zu löschender Eintrag existiert nicht! :(")
+        self.connection.commit()
 
     def deleteDuellieren(self, besitzerID1: int, besitzerID2: int):
-        pass
+        cursor = self.connection.cursor()
+        try:
+            cursor.execute(
+                self.commands['delete_duellieren'].format(aid1=besitzerID1, aid2=besitzerID2))
+
+        except mariadb.IntegrityError:
+            print("Zu löschender Eintrag existiert nicht! :(")
+        self.connection.commit()
 
     # Befüllt die Tabellen mit den Instanzen ihrer Wahl um die SQL-Abfragen zu testen
     def createWorld(self):
-        pass
+
+        self.createProjectDBTables()
+
+        self.createEigenschaft(1, "Brennen")
+        self.createShop(besitzerID=2, name="Orgienladen", geld=99999, adresse="G35", ladenBesitzer="Atzmueller")
+        self.createItem(1, "Mojito", 12, 2)
+        self.createDungeon(besitzerID=3, name="Adrians Einöde", geld=9, adresse="Dunkelwald", schwierigkeitsgrad=3)
+        self.createTeam(61, "Helmut", 6, 10, 5000, 1, 50, "Flasche", "2000-05-12", "Erde", 2, 20, 1, "Hugo", 9001,
+                            "Dackel", 1.0)
+        self.createTeam(60, "Helga", 6, 10, 5000, 1, 50, "Flasche", "2000-05-12", "Erde", 2, 20, 2, "Huga", 9001,
+                            "Dackel", 1.0)
+        self.createDuellieren(60, 61)
+        self.createEigenschaftenBesitzen(1, 1)
 
     # Geben Sie eine List aus, mit allen Rassen von existierenden Haustieren.
     def doExerciseRA1(self):

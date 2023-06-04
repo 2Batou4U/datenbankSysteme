@@ -13,3 +13,7 @@ dbs_test.createDungeon(besitzerID=3, name="Adrians Einöde", geld=9, adresse="Du
 dbs_test.createTeam(61, "Helmut", 6, 10, 5000, 1, 50, "Flasche", "2000-05-12", "Erde", 2, 20, 1, "Hugo", 9001, "Dackel", 1.0)
 dbs_test.createTeam(60, "Helga", 6, 10, 5000, 1, 50, "Flasche", "2000-05-12", "Erde", 2, 20, 2, "Huga", 9001, "Dackel", 1.0)
 dbs_test.createDuellieren(60, 61)
+dbs_test.createEigenschaftenBesitzen(1, 1)
+
+dbs_test.deleteDuellieren(61, 60)
+

@@ -11,6 +11,7 @@
 	],
 	"create_eigenschaft": "insert into eigenschaften (eigenschaften_id, beschreibung) values ({eigenschaftenID}, '{name}');",
 	"create_item": "insert into item (item_id, name, geldwert, besitzer) values ({itemID}, '{name}', {geldwert}, {besitzerID});",
+	"create_eigenschaftenBesitzen": "insert into eigenschaftenbesitzen (eigenschaften_id, item_id) values ({eigenschaftenID}, {itemID});",
 	"create_shop": [
 		"insert into besitzer (besitzer_id, name, geld) values ({besitzerID}, '{name}', {geld});",
 		"insert into ort (besitzer_id, adresse) values ({besitzerID}, '{adresse}');",
@@ -27,5 +28,14 @@
 		"insert into haustier (haustier_id, name, kampfkraft, rasse, niedlichkeitsfaktor) values ({haustierID}, '{haustierName}', {kampfkraft}, '{rasse}', {niedlichkeitsfaktor});",
 		"insert into team (besitzer_id, haustier_id, affinitaet) values ({besitzerID}, {haustierID}, {affinitaet});"
 	],
-	"create_duellieren": "insert into duellieren (AID1, AID2) values ({avatar1}, {avatar2});"
+	"create_duellieren": "insert into duellieren (AID1, AID2) values ({avatar1}, {avatar2});",
+
+
+	"delete_eigenschaft" : "delete from eigenschaften where eigenschaften_id= ({id});",
+	"delete_item" : "delete from item where item_id = ({id});",
+	"delete_eigenschaftenbesitzen" : "delete from eigenschaftenbesitzen where eigenschaften_id= ({eigenschaftenID}) and item_id = ({itemID});",
+	"delete_shop" : "delete from besitzer where exists(select * from shop where shop.besitzer_id=besitzer.besitzer_id and besitzer_id = ({id}));",
+	"delete_dungeon" : "delete from besitzer where exists(select * from dungeon where dungeon.besitzer_id=besitzer.besitzer_id and besitzer_id = ({id}));",
+	"delete_team" : "delete from haustier where haustier_id = ({haustierID}) ;",
+	"delete_duellieren" : "delete from duellieren where (aid1 = ({aid1}) and aid2 = ({aid2})) or  (aid1 = ({aid2}) and aid2 = ({aid1}));"
 }
