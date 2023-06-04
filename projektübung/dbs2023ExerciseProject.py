@@ -222,6 +222,7 @@ class DatabaseProject:
         self.createShop(besitzerID=2, name="Orgienladen", geld=99999, adresse="G35", ladenBesitzer="Atzmueller")
 
         self.createItem(itemID=1, name="Mojito", geldwert=12, besitzerID=2)
+        self.createItem(itemID=1, name="Mojito", geldwert=10, besitzerID=60)
 
         self.createDungeon(besitzerID=3, name="Datenbanksysteme", geld=9, adresse="Dunkelwald", schwierigkeitsgrad=3)
 
@@ -281,9 +282,7 @@ class DatabaseProject:
     def doExerciseTK1(self):
         cursor = self.connection.cursor()
         try:
-            cursor.execute("select * from avatar a right join besitzer b on a.besitzer_id = b.besitzer_id right join item i on b.besitzer_id = i.besitzer")
-            # select * from item i left join besitzer b on b.besitzer_id = i.besitzer left join avatar a on b.besitzer_id = a.besitzer_id
-            # "select * from item i left join besitzer b on b.besitzer_id = i.besitzer left join shop s on b.besitzer_id = s.besitzer_id"
+            cursor.execute("select * from item i, shop s, avatar a where i.besitzer = s.besitzer_id and i.besitzer = a.besitzer_id")
             for data in cursor:
                 print(f"{bcolors.OKGREEN}Test {data}{bcolors.ENDC}")
 
