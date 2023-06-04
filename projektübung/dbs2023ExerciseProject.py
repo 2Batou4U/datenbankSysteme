@@ -202,6 +202,7 @@ class DatabaseProject:
     # Befüllt die Tabellen mit den Instanzen ihrer Wahl um die SQL-Abfragen zu testen
     def createWorld(self):
 
+        self.deleteAllProjectTables()
         self.createProjectDBTables()
 
         self.createEigenschaft(1, "Brennen")
@@ -217,7 +218,17 @@ class DatabaseProject:
 
     # Geben Sie eine List aus, mit allen Rassen von existierenden Haustieren.
     def doExerciseRA1(self):
-        pass
+
+        cursor = self.connection.cursor()
+        try:
+            cursor.execute("SELECT DISTINCT rasse FROM haustier")
+
+            for data in cursor:
+                print(data)
+
+        except mariadb.IntegrityError:
+            print("Da ist etwas schief gelaufen :(")
+
 
     # Geben Sie jede Avatar ID aus, welche sich im Dungeon mit dem Namen "Datenbanksysteme" befindet.
     def doExerciseRA2(self):
