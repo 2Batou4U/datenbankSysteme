@@ -93,7 +93,7 @@ class DatabaseProject:
         cursor = self.connection.cursor()
         try:
             cursor.execute(self.commands['create_item'].format(itemID=itemID, name=name, geldwert=geldwert, besitzerID=besitzerID))
-        except mariadb.IntegrityError:
+        except mariadb.IntegrityError as err:
             print(f"{bcolors.FAIL}Eintrag existiert bereits! :({bcolors.ENDC}")
         self.connection.commit()
 
@@ -222,7 +222,8 @@ class DatabaseProject:
         self.createShop(besitzerID=2, name="Orgienladen", geld=99999, adresse="G35", ladenBesitzer="Atzmueller")
 
         self.createItem(itemID=1, name="Mojito", geldwert=12, besitzerID=2)
-        self.createItem(itemID=1, name="Mojito", geldwert=10, besitzerID=60)
+
+        self.createItem(itemID=2, name="Vodka-O", geldwert=12, besitzerID=2)
 
         self.createDungeon(besitzerID=3, name="Datenbanksysteme", geld=9, adresse="Dunkelwald", schwierigkeitsgrad=3)
 
@@ -233,6 +234,8 @@ class DatabaseProject:
         self.createTeam(besitzerID=60, avatarName="Helga", geld=80, staerke=120, magie=4000, geschwindigkeit=3, rang=12,
                         waffenPref="Flasche", geburtsdatum="2000-05-12", geburtsort="Erde", istIn=2, affinitaet=20,
                         haustierID=2, haustierName="Huga", kampfkraft=9002, rasse="Dackel", niedlichkeitsfaktor=1.0)
+
+        self.createItem(itemID=3, name="Old Fashioned", geldwert=12, besitzerID=60)
 
         self.createDuellieren(avatar1=60, avatar2=61)
 
@@ -282,7 +285,9 @@ class DatabaseProject:
     def doExerciseTK1(self):
         cursor = self.connection.cursor()
         try:
-            cursor.execute("select * from item i, shop s, avatar a where i.besitzer = s.besitzer_id and i.besitzer = a.besitzer_id")
+            cursor.execute("select * from item i1 right join avatar a on i1.besitzer = a.besitzer_id")
+            # select * from item i left join besitzer b on b.besitzer_id = i.besitzer left join avatar a on b.besitzer_id = a.besitzer_id
+            # "select * from item i left join besitzer b on b.besitzer_id = i.besitzer left join shop s on b.besitzer_id = s.besitzer_id"
             for data in cursor:
                 print(f"{bcolors.OKGREEN}Test {data}{bcolors.ENDC}")
 
