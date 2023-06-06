@@ -194,8 +194,8 @@ class DatabaseProject:
     def deleteTeam(self, besitzerID: int, haustierID: int):
         cursor = self.connection.cursor()
         try:
-            cursor.execute(
-                self.commands['delete_team'].format(haustierID=haustierID))
+            cursor.execute(self.commands['delete_team'][0].format(haustierID=haustierID))
+            cursor.execute(self.commands['delete_team'][1].format(besitzerID=besitzerID))
 
         except mariadb.IntegrityError:
             print(f"{bcolors.FAIL}Zu löschender Eintrag existiert nicht! :({bcolors.ENDC}")
@@ -218,14 +218,15 @@ class DatabaseProject:
         self.createProjectDBTables()
 
         self.createEigenschaft(eigenschaftenID=1, name="Brennen")
+        self.createEigenschaft(eigenschaftenID=2, name="Fruchtig")
 
-        self.createShop(besitzerID=2, name="Orgienladen", geld=99999, adresse="G35", ladenBesitzer="Atzmueller")
+        self.createShop(besitzerID=2, name="Laden", geld=99999, adresse="G35", ladenBesitzer="Atzmueller")
 
-        self.createItem(itemID=1, name="Mojito", geldwert=12, besitzerID=2)
-
-        self.createItem(itemID=2, name="Vodka-O", geldwert=12, besitzerID=2)
+        self.createItem(itemID=1, name="Mojito", geldwert=1200, besitzerID=2)
+        self.createItem(itemID=2, name="Vodka-O", geldwert=2000, besitzerID=2)
 
         self.createDungeon(besitzerID=3, name="Datenbanksysteme", geld=9, adresse="Dunkelwald", schwierigkeitsgrad=3)
+        self.createItem(itemID=5, name="Datenbanksysteme-Schein", geldwert=2, besitzerID=3)
 
         self.createTeam(besitzerID=61, avatarName="Helmut", geld=6, staerke=10, magie=5000, geschwindigkeit=1, rang=50,
                         waffenPref="Flasche", geburtsdatum="2000-05-12", geburtsort="Erde", istIn=3, affinitaet=20,
@@ -233,13 +234,21 @@ class DatabaseProject:
 
         self.createTeam(besitzerID=60, avatarName="Helga", geld=80, staerke=120, magie=4000, geschwindigkeit=3, rang=12,
                         waffenPref="Flasche", geburtsdatum="2000-05-12", geburtsort="Erde", istIn=2, affinitaet=20,
-                        haustierID=2, haustierName="Huga", kampfkraft=9002, rasse="Dackel", niedlichkeitsfaktor=1.0)
+                        haustierID=2, haustierName="Huga", kampfkraft=9002, rasse="Dackel", niedlichkeitsfaktor=0.7)
 
-        self.createItem(itemID=3, name="Old Fashioned", geldwert=12, besitzerID=60)
+        self.createTeam(besitzerID=62, avatarName="Atzmüller", geld=20000, staerke=3000, magie=2, geschwindigkeit=1, rang=30,
+                        waffenPref="Notenvergabe", geburtsdatum="1930-05-12", geburtsort="Erde", istIn=2, affinitaet=100,
+                        haustierID=7, haustierName="Studenten", kampfkraft=9002, rasse="Geringverdiener", niedlichkeitsfaktor=1.0)
 
         self.createDuellieren(avatar1=60, avatar2=61)
+        self.createDuellieren(avatar1=61, avatar2=62)
+
+        self.createItem(itemID=3, name="Old Fashioned", geldwert=12, besitzerID=60)
+        self.createItem(itemID=4, name="Datenbanksysteme-Schein", geldwert=2, besitzerID=60)
+        #self.createItem(itemID=6, name="Old Fashioned", geldwert=12, besitzerID=61)
 
         self.createEigenschaftenBesitzen(eigenschaftenID=1, itemID=1)
+        self.createEigenschaftenBesitzen(eigenschaftenID=2, itemID=2)
 
     # Geben Sie eine List aus, mit allen Rassen von existierenden Haustieren.
     def doExerciseRA1(self):
@@ -287,7 +296,7 @@ class DatabaseProject:
         try:
             cursor.execute("select b1.name as avatar, b2.name as shop, s_item as item from (select a.besitzer_id a_name, i1.name as a_item, i1.geldwert as a_geldwert, s.besitzer_id as s_name, i2.name as s_item, i2.geldwert as s_geldwert from (item i1 left join avatar a on i1.besitzer = a.besitzer_id), (item i2 left join shop s on i2.besitzer = s.besitzer_id) where a.besitzer_id is not null) as output join besitzer b1 on a_name=b1.besitzer_id join besitzer b2 on s_name=b2.besitzer_id where a_item=s_item and s_geldwert>a_geldwert;")
             for data in cursor:
-                print(f"{bcolors.OKGREEN}Test {data}{bcolors.ENDC}")
+                print(f"{bcolors.OKGREEN}Das Item {data[2]} ist bei dem Avatar {data[0]} mehr Wert als im Shop {data[1]}{bcolors.ENDC}")
 
         except mariadb.IntegrityError:
             print(f"{bcolors.FAIL}Da ist etwas schief gelaufen :({bcolors.ENDC}")
@@ -296,9 +305,9 @@ class DatabaseProject:
     def doExerciseTK2(self):
         cursor = self.connection.cursor()
         try:
-            cursor.execute("Select distinct eigenschaften_id from eigenschaftenbesitzen right join item where geldwert > 1000")
+            cursor.execute("Select distinct eigenschaften_id from eigenschaftenbesitzen right join item on item.item_id = eigenschaftenbesitzen.item_id where item.geldwert > 1000")
             for data in cursor:
-                print(f"{bcolors.OKGREEN}Test {data}{bcolors.ENDC}")
+                print(f"{bcolors.OKGREEN}Die Eigenschaft {data[0]} gehört zu einem wertvollen Item.{bcolors.ENDC}")
 
         except mariadb.IntegrityError:
             print(f"{bcolors.FAIL}Da ist etwas schief gelaufen :({bcolors.ENDC}")
@@ -310,30 +319,63 @@ class DatabaseProject:
         cursor = self.connection.cursor()
         try:
             cursor.execute(
-                "Select distinct * from besitzer left join item where")
+                "select d.besitzer_id from dungeon d where d.besitzer_id not in (select distinct d.besitzer_id from dungeon d inner join avatar a on d.besitzer_id = a.istin left outer join item i1 on a.besitzer_id = i1.besitzer left outer join item i2 on d.besitzer_id = i2.besitzer where i1.name = 'Datenbanksysteme-Schein' and i2.name = 'Datenbanksysteme-Schein')")
             for data in cursor:
-                print(f"{bcolors.OKGREEN}Test {data}{bcolors.ENDC}")
+                print(f"{bcolors.OKGREEN} Der Dungeon {data[0]} hat das Item 'Datenbanksysteme-Schein', aber die Avatare vor Ort nicht. {bcolors.ENDC}")
 
         except mariadb.IntegrityError:
             print(f"{bcolors.FAIL}Da ist etwas schief gelaufen :({bcolors.ENDC}")
 
     # Geben Sie jede Avatar ID aus, welcher zu seinem Haustier-Partner eine Affinität größer 80% hat.
     def doExerciseDK1(self):
-        pass
+        cursor = self.connection.cursor()
+        try:
+            cursor.execute("Select besitzer_id from team where affinitaet >0.8")
+            for data in cursor:
+                print(
+                    f"{bcolors.OKGREEN} Avatar {data[0]} hat eine Affinität größer als 80%. {bcolors.ENDC}")
+
+        except mariadb.IntegrityError:
+            print(f"{bcolors.FAIL}Da ist etwas schief gelaufen :({bcolors.ENDC}")
 
     # Geben Sie jede Avatar ID aus, der sich mit dem Avatar ''Atzmüller'' duelliert hat und nicht das Item 
     # ''Datenbanksysteme-Schein'' besitzt.
     def doExerciseDK2(self):
-        pass
+        cursor = self.connection.cursor()
+        try:
+            cursor.execute("Select d.aid1 from duellieren d left join besitzer b on d.aid2 = b.besitzer_id where d.aid1 not in (Select besitzer from item i where i.name = 'Datenbanksysteme-Schein') and b.name = 'Atzmüller'")
+            for data in cursor:
+                print(
+                    f"{bcolors.OKGREEN} Avatar {data[0]} hat sich mit Atzmüller duelliert und besitzt keinen Datenbanksysteme-Schein.{bcolors.ENDC}")
+
+        except mariadb.IntegrityError:
+            print(f"{bcolors.FAIL}Da ist etwas schief gelaufen :({bcolors.ENDC}")
 
     # Geben Sie die Namen aller Haustiere aus, mit einer Kampfstärke größer 9000 und einem Niedlichkeitsfaktor von 
     # mindestens 80% an. Nutzen Sie dabei keine Exists Quantifizierung.
     def doExerciseDK3(self):
-        pass
+        cursor = self.connection.cursor()
+        try:
+            cursor.execute("Select h.name from team t natural join haustier h where h.kampfkraft > 9000 and h.niedlichkeitsfaktor >= 0.8")
+            for data in cursor:
+                print(
+                    f"{bcolors.OKGREEN} Haustier {data[0]} hat eine Kampfkraft > 9000 und einen niedlichkeitsfaktor > 0.8.{bcolors.ENDC}")
+
+        except mariadb.IntegrityError:
+            print(f"{bcolors.FAIL}Da ist etwas schief gelaufen :({bcolors.ENDC}")
 
     # Geben Sie die Waffe wieder, welche gerade am häufigsten bevorzugt ist.
     def doExerciseSQL1(self):
-        pass
+        cursor = self.connection.cursor()
+        try:
+            cursor.execute(
+                "Select h.name from team t natural join haustier h where h.kampfkraft > 9000 and h.niedlichkeitsfaktor >= 0.8")
+            for data in cursor:
+                print(
+                    f"{bcolors.OKGREEN} Haustier {data[0]} hat eine Kampfkraft > 9000 und einen niedlichkeitsfaktor > 0.8.{bcolors.ENDC}")
+
+        except mariadb.IntegrityError:
+            print(f"{bcolors.FAIL}Da ist etwas schief gelaufen :({bcolors.ENDC}")
 
     # Geben Sie die durchschnittliche Niedlichkeit aller Haustiere aus, von den Avataren, die gerade mit weniger als 
     # 500 Geld, die gleichzeitig in einem Dungeon sind, welcher ein Item beinhaltet, der in keinem Laden vorhanden ist.
