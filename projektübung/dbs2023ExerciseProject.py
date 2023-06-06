@@ -369,10 +369,10 @@ class DatabaseProject:
         cursor = self.connection.cursor()
         try:
             cursor.execute(
-                "Select h.name from team t natural join haustier h where h.kampfkraft > 9000 and h.niedlichkeitsfaktor >= 0.8")
+                "Select a.waffenpref, COUNT(a.waffenpref) as anzahl from avatar a group by a.waffenpref order by anzahl desc limit 1")
             for data in cursor:
                 print(
-                    f"{bcolors.OKGREEN} Haustier {data[0]} hat eine Kampfkraft > 9000 und einen niedlichkeitsfaktor > 0.8.{bcolors.ENDC}")
+                    f"{bcolors.OKGREEN} Die bevorzugte Waffe {data[0]} aller Avatare ist.{bcolors.ENDC}")
 
         except mariadb.IntegrityError:
             print(f"{bcolors.FAIL}Da ist etwas schief gelaufen :({bcolors.ENDC}")
@@ -380,7 +380,15 @@ class DatabaseProject:
     # Geben Sie die durchschnittliche Niedlichkeit aller Haustiere aus, von den Avataren, die gerade mit weniger als 
     # 500 Geld, die gleichzeitig in einem Dungeon sind, welcher ein Item beinhaltet, der in keinem Laden vorhanden ist.
     def doExerciseSQL2(self):
-        pass
+        cursor = self.connection.cursor()
+        try:
+            cursor.execute("Select * from haustier h natural join team t natural join avatar a join besitzer b on a.besitzer_id = b.besitzer_id where b.geld < 500 and a.istin in (Select d.besitzer_id from dungeon d join item i on d.besitzer_id = i.besitzer where i.name not in(Select i.name from shop s join item i on s.besitzer_id = i.besitzer ))")
+            for data in cursor:
+                print(
+                    f"{bcolors.OKGREEN} Zu der viel zu langen Aufgabe passt Haustier {data[0]}.{bcolors.ENDC}")
+
+        except mariadb.IntegrityError:
+            print(f"{bcolors.FAIL}Da ist etwas schief gelaufen :({bcolors.ENDC}")
 
     # Geben Sie aus, wie viele Avatare das Item ''Datenbanksysteme-Schein'' besitzen, geteilt durch die Anzahl aller 
     # ''Datenbanksysteme-Schein''-Items die existieren.
