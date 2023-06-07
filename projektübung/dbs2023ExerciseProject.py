@@ -285,12 +285,10 @@ class DatabaseProject:
         except mariadb.IntegrityError as i_err:
             print(f"█ Etwas ist schief gelaufen: {i_err}")
 
-    """
-    Die Test-Müllhalde für unsere Datenbank.
-    """
-
     def createWorld(self):
-
+        """
+        Die Test-Müllhalde für unsere Datenbank.
+        """
         self.deleteAllProjectTables()
         self.createProjectDBTables()
 
@@ -355,6 +353,7 @@ class DatabaseProject:
     def doExerciseRA1(self) -> list[tuple]:
         """
         Geben Sie alle existierenden Rassen von Haustieren aus.
+
         :return: Liste aus Tupeln mit Ergebnissen.
         """
         cursor = self.connection.cursor()
@@ -692,7 +691,24 @@ class DatabaseProject:
 
         :return: Liste aus Tupeln mit Ergebnissen.
         """
-        pass
+        cursor = self.connection.cursor()
+        try:
+            cursor.execute("""
+            create view if not exists dieb as
+            select b.name,
+            a.besitzer_id,
+            coalesce(round((b.geld + 
+            (select sum(i.geldwert) where i.besitzer = a.besitzer_id)) / 5000.0) * 5000, 0) 
+            as thief_view from avatar a
+            join besitzer b on a.besitzer_id = b.besitzer_id
+            left outer join item i on a.besitzer_id = i.besitzer
+            group by a.besitzer_id;
+            """)
+
+            return [('Status', 'View erstellt.')]
+
+        except mariadb.IntegrityError as i_err:
+            print(f"█ Etwas ist schief gelaufen: {i_err}")
 
     def doExerciseSQL8(self) -> list[tuple]:
         """
@@ -701,4 +717,28 @@ class DatabaseProject:
 
         :return: Liste aus Tupeln mit Ergebnissen.
         """
-        pass
+        cursor = self.connection.cursor()
+        try:
+            cursor.execute("""
+            create trigger knechten
+            after update on avatar
+            for each row
+            begin
+            update avatar a
+            set a.istin = (select b.besitzer_id from dungeon d
+            join besitzer b on d.besitzer_id = b.besitzer_id
+            where b.name = 'Arbeitswelt'
+            limit 1)
+            where a.istin = (select b.besitzer_id from dungeon d
+            join besitzer b on d.besitzer_id = b.besitzer_id
+            where b.name = 'Datenbanksysteme'
+            limit 1)
+            and a.besitzer_id in (select i.besitzer from item i
+            where i.name = 'Datenbanksysteme-Schein');
+            end;
+            """)
+
+            return [('Status', 'Trigger erstellt.')]
+
+        except mariadb.IntegrityError as i_err:
+            print(f"█ Etwas ist schief gelaufen: {i_err}")
