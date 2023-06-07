@@ -606,7 +606,7 @@ class DatabaseProject:
         cursor = self.connection.cursor()
         try:
             cursor.execute("""
-            select a.besitzer_id from avatar a 
+            select * from avatar a 
             where geburtsdatum > date('2000-1-1') 
             order by geburtsdatum desc;
             """)
