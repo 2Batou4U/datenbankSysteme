@@ -60,3 +60,13 @@ for data in sql1:
 sql2: list[tuple] = dbs_test.doExerciseSQL2()
 for data in sql2:
     print(f"""Ich schreibe die Bedingungen nicht ab. Das Ergebnis ist '{data[0]}'.""")
+
+# Test zu SQL3
+sql3: list[tuple] = dbs_test.doExerciseSQL3()
+for data in sql3:
+    print(f"""{int(data[0]*100)}% der Items 'Datenbanksysteme-Schein' werden von Spielern besessen.""")
+
+# Test zu SQL4
+sql4: list[tuple] = dbs_test.doExerciseSQL4()
+for data in sql4:
+    print(f"""Avatar {data[0]} wurde am {data[6]} geboren.""")
