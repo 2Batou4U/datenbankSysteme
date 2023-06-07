@@ -294,41 +294,61 @@ class DatabaseProject:
         self.deleteAllProjectTables()
         self.createProjectDBTables()
 
-        self.createEigenschaft(eigenschaftenID=1, name="Brennen")
-        self.createEigenschaft(eigenschaftenID=2, name="Fruchtig")
+        self.createEigenschaft(eigenschaftenID=1001, name="Brennen")
+        self.createEigenschaft(eigenschaftenID=1002, name="Fruchtig")
 
-        self.createShop(besitzerID=2, name="Laden", geld=99999, adresse="G35", ladenBesitzer="Atzmueller")
+        self.createShop(besitzerID=2001, name="Edeka", geld=99999, adresse="Area 51", ladenBesitzer="Udo Lindenberg")
 
-        self.createItem(itemID=1, name="Mojito", geldwert=1200, besitzerID=2)
-        self.createItem(itemID=2, name="Vodka-O", geldwert=2000, besitzerID=2)
+        self.createDungeon(besitzerID=6001, name="Datenbanksysteme", geld=1000, adresse="Universität", schwierigkeitsgrad=5)
+        self.createDungeon(besitzerID=6002, name="Arbeitswelt", geld=500, adresse="McDonalds", schwierigkeitsgrad=9)
 
-        self.createDungeon(besitzerID=3, name="Datenbanksysteme", geld=9, adresse="Dunkelwald", schwierigkeitsgrad=3)
-        self.createItem(itemID=5, name="Datenbanksysteme-Schein", geldwert=2, besitzerID=3)
+        self.createTeam(besitzerID=4001, avatarName="Eivor", geld=5000, staerke=740, magie=500, geschwindigkeit=320,
+                        rang=50, waffenPref="Assassinen-Klinge", geburtsdatum="0900-12-23", geburtsort="Norwegen",
+                        istIn=6002, affinitaet=100, haustierID=5001, haustierName="Sýnin", kampfkraft=1, rasse="Rabe",
+                        niedlichkeitsfaktor=0.8)
 
-        self.createTeam(besitzerID=61, avatarName="Helmut", geld=6, staerke=10, magie=5000, geschwindigkeit=1, rang=50,
-                        waffenPref="Flasche", geburtsdatum="2000-05-12", geburtsort="Erde", istIn=3, affinitaet=20,
-                        haustierID=1, haustierName="Hugo", kampfkraft=9001, rasse="Dackel", niedlichkeitsfaktor=1.0)
-
-        self.createTeam(besitzerID=60, avatarName="Helga", geld=80, staerke=120, magie=4000, geschwindigkeit=3, rang=12,
-                        waffenPref="Flasche", geburtsdatum="2000-05-12", geburtsort="Erde", istIn=2, affinitaet=20,
-                        haustierID=2, haustierName="Huga", kampfkraft=9002, rasse="Dackel", niedlichkeitsfaktor=0.7)
-
-        self.createTeam(besitzerID=62, avatarName="Atzmüller", geld=20000, staerke=3000, magie=2, geschwindigkeit=1,
-                        rang=30,
-                        waffenPref="Notenvergabe", geburtsdatum="1930-05-12", geburtsort="Erde", istIn=2,
-                        affinitaet=100,
-                        haustierID=7, haustierName="Studenten", kampfkraft=9002, rasse="Geringverdiener",
+        self.createTeam(besitzerID=4002, avatarName="Geralt", geld=80, staerke=600, magie=400, geschwindigkeit=500,
+                        rang=25, waffenPref="Silberschwert", geburtsdatum="1168-01-18", geburtsort="Rivia",
+                        istIn=6002, affinitaet=100, haustierID=5002, haustierName="Einhorn", kampfkraft=0, rasse="Einhorn",
                         niedlichkeitsfaktor=1.0)
 
-        self.createDuellieren(avatar1=60, avatar2=61)
-        self.createDuellieren(avatar1=61, avatar2=62)
+        self.createTeam(besitzerID=4003, avatarName="V", geld=25000, staerke=999, magie=0, geschwindigkeit=999, rang=50,
+                        waffenPref="Monowire", geburtsdatum="2049-06-10", geburtsort="Night City", istIn=2001,
+                        affinitaet=20, haustierID=5003, haustierName="Johnny", kampfkraft=9999, rasse="Mensch",
+                        niedlichkeitsfaktor=0.1)
 
-        self.createItem(itemID=3, name="Old Fashioned", geldwert=12, besitzerID=60)
-        self.createItem(itemID=4, name="Datenbanksysteme-Schein", geldwert=2, besitzerID=60)
-        # self.createItem(itemID=6, name="Old Fashioned", geldwert=12, besitzerID=61)
+        self.createTeam(besitzerID=4004, avatarName="Atzmüller", geld=99999, staerke=300, magie=0, geschwindigkeit=250,
+                        rang=99, waffenPref="Notenvergabe", geburtsdatum="1970-01-01", geburtsort="Erde", istIn=2001,
+                        affinitaet=500, haustierID=5004, haustierName="Student", kampfkraft=1, rasse="Geringverdiener",
+                        niedlichkeitsfaktor=1.0)
 
-        self.createEigenschaftenBesitzen(eigenschaftenID=1, itemID=1)
-        self.createEigenschaftenBesitzen(eigenschaftenID=2, itemID=2)
+        self.createTeam(besitzerID=4005, avatarName="Prüfungsamt", geld=999, staerke=999, magie=999, geschwindigkeit=999,
+                        rang=99, waffenPref="Fehlversuch", geburtsdatum="0001-01-01", geburtsort="Jenseits", istIn=6001,
+                        affinitaet=1, haustierID=5005, haustierName="Beamter", kampfkraft=0, rasse="Arbeitsdrohne",
+                        niedlichkeitsfaktor=0.0)
+
+        self.createDuellieren(avatar1=4001, avatar2=4002)
+        self.createDuellieren(avatar1=4003, avatar2=4004)
+        self.createDuellieren(avatar1=4002, avatar2=4003)
+        self.createDuellieren(avatar1=4005, avatar2=4004)
+        self.createDuellieren(avatar1=4002, avatar2=4005)
+        self.createDuellieren(avatar1=4004, avatar2=4005)
+
+        self.createItem(itemID=3001, name="Mojito", geldwert=1500, besitzerID=2001)
+        self.createItem(itemID=3002, name="Tequila", geldwert=800, besitzerID=2001)
+        self.createItem(itemID=3003, name="Vodka-O", geldwert=400, besitzerID=2001)
+
+        self.createItem(itemID=3004, name="Old Fashioned", geldwert=2000, besitzerID=4003)
+
+        self.createItem(itemID=3005, name="Datenbanksysteme-Schein", geldwert=500, besitzerID=4001)
+        self.createItem(itemID=3009, name="Datenbanksysteme-Schein", geldwert=500, besitzerID=4004)
+
+        self.createItem(itemID=3006, name="Fehlversuch", geldwert=0, besitzerID=4002)
+        self.createItem(itemID=3007, name="Fehlversuch", geldwert=0, besitzerID=4002)
+        self.createItem(itemID=3008, name="Fehlversuch", geldwert=0, besitzerID=4002)
+
+        self.createEigenschaftenBesitzen(eigenschaftenID=1001, itemID=3002)
+        self.createEigenschaftenBesitzen(eigenschaftenID=1002, itemID=3001)
 
         self.connection.commit()
 
@@ -623,7 +643,20 @@ class DatabaseProject:
 
         :return: Liste aus Tupeln mit Ergebnissen.
         """
-        pass
+        cursor = self.connection.cursor()
+        try:
+            cursor.execute("""
+            update avatar a
+            join besitzer b on a.besitzer_id = b.besitzer_id
+            join shop s on a.istin = s.besitzer_id
+            set a.istin = (select besitzer_id from besitzer where name = 'Arbeitswelt' limit 1)
+            where b.geld <= 100;
+            """)
+
+            return [('Status', 'Update ausgeführt.')]
+
+        except mariadb.IntegrityError as i_err:
+            print(f"█ Etwas ist schief gelaufen: {i_err}")
 
     def doExerciseSQL6(self) -> list[tuple]:
         """
@@ -632,7 +665,24 @@ class DatabaseProject:
 
         :return: Liste aus Tupeln mit Ergebnissen.
         """
-        pass
+        cursor = self.connection.cursor()
+        try:
+            cursor.execute("""
+            delete from avatar 
+            where besitzer_id = (select b1.besitzer_id from avatar a
+            join besitzer b1 on a.besitzer_id = b1.besitzer_id
+            join duellieren d on a.besitzer_id = d.aid1
+            join besitzer b2 on d.aid2 = b2.besitzer_id
+            where b2.name = 'Prüfungsamt'
+            and (select count(*) from item
+            where name = 'Fehlversuch'
+            and besitzer = b1.besitzer_id) >= 3);
+            """)
+
+            return [('Status', 'Löschen ausgeführt.')]
+
+        except mariadb.IntegrityError as i_err:
+            print(f"█ Etwas ist schief gelaufen: {i_err}")
 
     def doExerciseSQL7(self) -> list[tuple]:
         """

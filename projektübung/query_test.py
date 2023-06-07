@@ -70,3 +70,19 @@ for data in sql3:
 sql4: list[tuple] = dbs_test.doExerciseSQL4()
 for data in sql4:
     print(f"""Avatar {data[0]} wurde am {data[6]} geboren.""")
+
+# Test zu SQL4
+sql4: list[tuple] = dbs_test.doExerciseSQL4()
+for data in sql4:
+    print(f"""Avatar {data[0]} wurde am {data[6]} geboren.""")
+
+# Test zu SQL5
+sql5: list[tuple] = dbs_test.doExerciseSQL5()
+for data in sql5:
+    print(f"""{data[0]}: {data[1]}""")
+
+
+# Test zu SQL6
+sql6: list[tuple] = dbs_test.doExerciseSQL6()
+for data in sql6:
+    print(f"""{data[0]}: {data[1]}""")
