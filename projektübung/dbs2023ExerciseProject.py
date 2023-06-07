@@ -583,14 +583,14 @@ class DatabaseProject:
         cursor = self.connection.cursor()
         try:
             cursor.execute("""
-                    select 
-                    (select count(*) as spieler_anz from avatar a 
-                    join item i on i.besitzer = a.besitzer_id 
-                    where i.name = 'Datenbanksysteme-Schein') 
-                    /
-                    (select count(*) as item_anz from item i 
-                    where i.name = 'Datenbanksysteme-Schein');
-                    """)
+            select 
+            (select count(*) as spieler_anz from avatar a 
+            join item i on i.besitzer = a.besitzer_id 
+            where i.name = 'Datenbanksysteme-Schein') 
+            /
+            (select count(*) as item_anz from item i 
+            where i.name = 'Datenbanksysteme-Schein');
+            """)
 
             return cursor.fetchall()
 
@@ -600,9 +600,21 @@ class DatabaseProject:
     def doExerciseSQL4(self) -> list[tuple]:
         """
         Geben Sie jeden Avatar, der nach dem 1.1.200 geboren worden ist. Sortieren Sie diese Daten nach Geburtsdatum.
+
         :return: Liste aus Tupeln mit Ergebnissen.
         """
-        pass
+        cursor = self.connection.cursor()
+        try:
+            cursor.execute("""
+            select a.besitzer_id from avatar a 
+            where geburtsdatum > date('2000-1-1') 
+            order by geburtsdatum desc;
+            """)
+
+            return cursor.fetchall()
+
+        except mariadb.IntegrityError as i_err:
+            print(f"█ Etwas ist schief gelaufen: {i_err}")
 
     def doExerciseSQL5(self) -> list[tuple]:
         """
