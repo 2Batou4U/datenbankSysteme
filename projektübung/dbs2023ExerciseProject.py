@@ -33,7 +33,7 @@ class DatabaseProject:
                 host=host,
                 port=port,
                 database=database,
-                client_flag=CLIENT.MULTI_STATEMENTS
+                client_flag=CLIENT.MULTI_STATEMENTS,
             )
 
         except mariadb.DatabaseError as d_err:
@@ -330,6 +330,8 @@ class DatabaseProject:
         self.createEigenschaftenBesitzen(eigenschaftenID=1, itemID=1)
         self.createEigenschaftenBesitzen(eigenschaftenID=2, itemID=2)
 
+        self.connection.commit()
+
     def doExerciseRA1(self) -> list[tuple]:
         """
         Geben Sie alle existierenden Rassen von Haustieren aus.
@@ -578,7 +580,22 @@ class DatabaseProject:
 
         :return: Liste aus Tupeln mit Ergebnissen.
         """
-        pass
+        cursor = self.connection.cursor()
+        try:
+            cursor.execute("""
+                    select 
+                    (select count(*) as spieler_anz from avatar a 
+                    join item i on i.besitzer = a.besitzer_id 
+                    where i.name = 'Datenbanksysteme-Schein') 
+                    /
+                    (select count(*) as item_anz from item i 
+                    where i.name = 'Datenbanksysteme-Schein');
+                    """)
+
+            return cursor.fetchall()
+
+        except mariadb.IntegrityError as i_err:
+            print(f"█ Etwas ist schief gelaufen: {i_err}")
 
     def doExerciseSQL4(self) -> list[tuple]:
         """
