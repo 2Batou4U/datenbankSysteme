@@ -12,9 +12,6 @@ class DatabaseProject:
     def __init__(self):
         self.connection: mariadb.Connection | None = None
 
-        with open('queries.json') as query_json:
-            self.queries = json.load(query_json)
-
     def connectToMariaDB(self, user: str, pw: str, host: str, database: str, port: int = 3306):
         """
         Connects to specified database and saves connection in 'connection' class variable.
@@ -53,27 +50,29 @@ class DatabaseProject:
     def createProjectDBTables(self):
         """
         Creates all the tables needed for testing inside our project.
-
-        :return: Error if anything goes wrong; Else returns nothing.
         """
         cursor = self.connection.cursor()
         try:
-            for query in self.queries:
-                print(f"Erstelle Tabelle '{query}'...")
-                cursor.execute(self.queries[query])
-
-        except mariadb.IntegrityError as i_err:
+            cursor.execute(f"""
+            create table besitzer (besitzer_id int not null, name varchar(64), geld float default 0.0, constraint besitzer_pk primary key (besitzer_id));
+            create table ort(besitzer_id int not null, adresse varchar(64) not null, constraint ort_besitzer_id_fk foreign key (besitzer_id) references besitzer (besitzer_id) on delete cascade);
+            create table shop(besitzer_id int not null, ladenbesitzer varchar(64) not null, constraint shop_besitzer_id_fk foreign key (besitzer_id) references besitzer (besitzer_id) on delete cascade);
+            create table dungeon(besitzer_id int not null, schwierigkeitsgrad int default 1, constraint dungeon_besitzer_id_fk foreign key (besitzer_id) references besitzer (besitzer_id) on delete cascade);
+            create table item(item_id int not null, name varchar(64) null, geldwert float default 0.0, besitzer int not null, constraint item_pk primary key (item_id), constraint item_besitzer_id_fk foreign key (besitzer) references besitzer (besitzer_id) on delete cascade);
+            create table avatar(besitzer_id int not null, staerke int default 1, magie int default 1, geschwindigkeit int default 1, rang int default 1, waffenpref varchar(64) null, geburtsdatum date default current_date, geburtsort varchar(64) null, istin int null, constraint avatar_besitzer_id_fk foreign key (besitzer_id) references besitzer (besitzer_id) on delete cascade, constraint istin_fk foreign key (istin) references ort (besitzer_id) on delete cascade);
+            create table eigenschaften (eigenschaften_id int not null, beschreibung varchar(64), constraint eigenschaften_pk PRIMARY KEY (eigenschaften_id));
+            create table eigenschaftenbesitzen(eigenschaften_id int null, item_id int null, constraint item_id_fk foreign key (item_id) references item (item_id) on delete cascade, constraint eb_eigenschaft_id_fk foreign key (eigenschaften_id) references eigenschaften (eigenschaften_id) on delete cascade);
+            create table duellieren(aid1 int null, aid2 int null, constraint aid1_fk foreign key (aid1) references avatar (besitzer_id) on delete cascade, constraint aid2_fk foreign key (aid2) references avatar (besitzer_id) on delete cascade, check ( duellieren.aid1 != duellieren.aid2 ));
+            create table haustier(haustier_id int not null, name varchar(64) null, kampfkraft int default 1, rasse varchar(64) null, niedlichkeitsfaktor float default 1, constraint haustier_pk primary key (haustier_id));
+            create table team(haustier_id int null, besitzer_id int null, affinitaet int default 1, constraint haustier_id_fk foreign key (haustier_id) references haustier (haustier_id) on delete cascade, constraint haustier_besitzer_id_fk foreign key (besitzer_id) references besitzer (besitzer_id) on delete cascade);
+            """)
+        except mariadb.Error as i_err:
             print(f"█ Etwas ist schief gelaufen: {i_err}")
-
-        finally:
-            self.connection.commit()
 
     # delete all project related tables
     def deleteAllProjectTables(self):
         """
         Code for cleaning up the database shamelessly stolen from StackOverflow. :)
-
-        :return: Error if anything goes wrong; Else returns nothing.
         """
         cursor = self.connection.cursor()
         try:
@@ -128,7 +127,7 @@ class DatabaseProject:
         except mariadb.IntegrityError as i_err:
             print(f"█ Etwas ist schief gelaufen: {i_err}")
 
-    def createShop(self, besitzerID: int, name: str, geld: int, adresse: str, ladenBesitzer: str):
+    def createShop(self,  besitzerID: int, name: str, geld: int, adresse: str, ladenBesitzer: str):
         cursor = self.connection.cursor()
         try:
             cursor.execute(f"""
@@ -302,7 +301,7 @@ class DatabaseProject:
 
         self.createTeam(besitzerID=4001, avatarName="Eivor", geld=5000, staerke=740, magie=500, geschwindigkeit=320,
                         rang=50, waffenPref="Assassinen-Klinge", geburtsdatum="0900-12-23", geburtsort="Norwegen",
-                        istIn=6002, affinitaet=100, haustierID=5001, haustierName="Sýnin", kampfkraft=1, rasse="Rabe",
+                        istIn=6002, affinitaet=100, haustierID=5001, haustierName="Sýnin", kampfkraft=10000, rasse="Rabe",
                         niedlichkeitsfaktor=0.8)
 
         self.createTeam(besitzerID=4002, avatarName="Geralt", geld=80, staerke=600, magie=400, geschwindigkeit=500,
@@ -717,13 +716,13 @@ class DatabaseProject:
 
         :return: Liste aus Tupeln mit Ergebnissen.
         """
+
         cursor = self.connection.cursor()
         try:
             cursor.execute("""
-            create trigger knechten
-            after update on avatar
+            create trigger if not exists knechten
+            after update on avatar 
             for each row
-            begin
             update avatar a
             set a.istin = (select b.besitzer_id from dungeon d
             join besitzer b on d.besitzer_id = b.besitzer_id
@@ -735,7 +734,6 @@ class DatabaseProject:
             limit 1)
             and a.besitzer_id in (select i.besitzer from item i
             where i.name = 'Datenbanksysteme-Schein');
-            end;
             """)
 
             return [('Status', 'Trigger erstellt.')]
