@@ -717,26 +717,28 @@ class DatabaseProject:
         :return: Liste aus Tupeln mit Ergebnissen.
         """
 
-        cursor = self.connection.cursor()
-        try:
-            cursor.execute("""
-            create trigger if not exists knechten
-            after update on avatar 
-            for each row
-            update avatar a
-            set a.istin = (select b.besitzer_id from dungeon d
-            join besitzer b on d.besitzer_id = b.besitzer_id
-            where b.name = 'Arbeitswelt'
-            limit 1)
-            where a.istin = (select b.besitzer_id from dungeon d
-            join besitzer b on d.besitzer_id = b.besitzer_id
-            where b.name = 'Datenbanksysteme'
-            limit 1)
-            and a.besitzer_id in (select i.besitzer from item i
-            where i.name = 'Datenbanksysteme-Schein');
-            """)
+        # cursor = self.connection.cursor()
+        # try:
+        #     cursor.execute("""
+        #     create trigger if not exists knechten
+        #     after update on avatar
+        #     for each row
+        #     update avatar a
+        #     set a.istin = (select b.besitzer_id from dungeon d
+        #     join besitzer b on d.besitzer_id = b.besitzer_id
+        #     where b.name = 'Arbeitswelt'
+        #     limit 1)
+        #     where a.istin = (select b.besitzer_id from dungeon d
+        #     join besitzer b on d.besitzer_id = b.besitzer_id
+        #     where b.name = 'Datenbanksysteme'
+        #     limit 1)
+        #     and a.besitzer_id in (select i.besitzer from item i
+        #     where i.name = 'Datenbanksysteme-Schein');
+        #     """)
+        #
+        #     return [('Status', 'Trigger erstellt.')]
+        #
+        # except mariadb.IntegrityError as i_err:
+        #     print(f"█ Etwas ist schief gelaufen: {i_err}")
 
-            return [('Status', 'Trigger erstellt.')]
-
-        except mariadb.IntegrityError as i_err:
-            print(f"█ Etwas ist schief gelaufen: {i_err}")
+        return [('Status', 'Trigger nicht erstellt.')]
