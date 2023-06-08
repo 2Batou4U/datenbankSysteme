@@ -1,9 +1,17 @@
-import json
 import mariadb
 from mariadb.constants import CLIENT
 
 
-# NOTE: Don't change the interfaces.
+class DBSException(Exception):
+    """
+    Raised when the database f*cks itself over.
+    We chose to create an extra Exception for the function name.
+    """
+    def __init__(self, function: str, message: str = 'Die Datenbank streikt wieder!'):
+        self.message = f'''In '{function}' heißt es: {message}'''
+        super().__init__(self.message)
+
+
 class DatabaseProject:
     """
     DatabaseProject enthält alle wichtigen Methoden, um die von uns erstellte Fantasy-Welt zu testen.
@@ -33,8 +41,8 @@ class DatabaseProject:
                 client_flag=CLIENT.MULTI_STATEMENTS,
             )
 
-        except mariadb.DatabaseError as d_err:
-            return d_err
+        except mariadb.Error as err:
+            raise DBSException(function='connectToMariaDB()', message=err.__str__())
 
     def disconnect(self):
         """
@@ -44,8 +52,8 @@ class DatabaseProject:
         """
         try:
             self.connection.close()
-        except mariadb.DatabaseError as d_err:
-            return d_err
+        except mariadb.Error as err:
+            raise DBSException(function='disconnect()', message=err.__str__())
 
     def createProjectDBTables(self):
         """
@@ -66,8 +74,8 @@ class DatabaseProject:
             create table haustier(haustier_id int not null, name varchar(64) null, kampfkraft int default 1, rasse varchar(64) null, niedlichkeitsfaktor float default 1, constraint haustier_pk primary key (haustier_id));
             create table team(haustier_id int null, besitzer_id int null, affinitaet int default 1, constraint haustier_id_fk foreign key (haustier_id) references haustier (haustier_id) on delete cascade, constraint haustier_besitzer_id_fk foreign key (besitzer_id) references besitzer (besitzer_id) on delete cascade);
             """)
-        except mariadb.Error as i_err:
-            print(f"█ Etwas ist schief gelaufen: {i_err}")
+        except mariadb.Error as err:
+            raise DBSException(function='createProjectDBTables()', message=err.__str__())
 
     # delete all project related tables
     def deleteAllProjectTables(self):
@@ -90,8 +98,8 @@ class DatabaseProject:
             SET FOREIGN_KEY_CHECKS=1;
             """)
 
-        except mariadb.IntegrityError as i_err:
-            print(f"█ Etwas ist schief gelaufen: {i_err}")
+        except mariadb.Error as err:
+            raise DBSException(function='deleteAllProjectTables()', message=err.__str__())
 
     # yes handling IDs manually is not optimal, however for our little project and for testing this should be
     # manageable! Implement all create and delete methods for each entity
@@ -102,8 +110,9 @@ class DatabaseProject:
             insert into eigenschaften (eigenschaften_id, beschreibung) 
             values ({eigenschaftenID}, '{name}');
             """)
-        except mariadb.IntegrityError as i_err:
-            print(f"█ Etwas ist schief gelaufen: {i_err}")
+
+        except mariadb.Error as err:
+            raise DBSException(function='createEigenschaft()', message=err.__str__())
 
     def createItem(self, itemID: int, name: str, geldwert: int, besitzerID: int):
         cursor = self.connection.cursor()
@@ -113,8 +122,8 @@ class DatabaseProject:
             values ({itemID}, '{name}', {geldwert}, {besitzerID});
             """)
 
-        except mariadb.IntegrityError as i_err:
-            print(f"█ Etwas ist schief gelaufen: {i_err}")
+        except mariadb.Error as err:
+            raise DBSException(function='createItem()', message=err.__str__())
 
     def createEigenschaftenBesitzen(self, itemID: int, eigenschaftenID: int):
         cursor = self.connection.cursor()
@@ -124,8 +133,8 @@ class DatabaseProject:
             values ({eigenschaftenID}, {itemID});
             """)
 
-        except mariadb.IntegrityError as i_err:
-            print(f"█ Etwas ist schief gelaufen: {i_err}")
+        except mariadb.Error as err:
+            raise DBSException(function='createEigenschaftenBesitzen()', message=err.__str__())
 
     def createShop(self,  besitzerID: int, name: str, geld: int, adresse: str, ladenBesitzer: str):
         cursor = self.connection.cursor()
@@ -141,8 +150,8 @@ class DatabaseProject:
             values ({besitzerID}, '{ladenBesitzer}');
             """)
 
-        except mariadb.IntegrityError as i_err:
-            print(f"█ Etwas ist schief gelaufen: {i_err}")
+        except mariadb.Error as err:
+            raise DBSException(function='createShop()', message=err.__str__())
 
     def createDungeon(self, besitzerID: int, name: str, geld: int, adresse: str, schwierigkeitsgrad: int):
         cursor = self.connection.cursor()
@@ -158,8 +167,8 @@ class DatabaseProject:
             values ({besitzerID}, {schwierigkeitsgrad});
             """)
 
-        except mariadb.IntegrityError as i_err:
-            print(f"█ Etwas ist schief gelaufen: {i_err}")
+        except mariadb.Error as err:
+            raise DBSException(function='createDungeon()', message=err.__str__())
 
     def createTeam(self, besitzerID: int, avatarName: str, geld: int, staerke: int, magie: int, geschwindigkeit: int,
                    rang: int, waffenPref: str, geburtsdatum: str, geburtsort: str, istIn: int, affinitaet: int,
@@ -182,8 +191,8 @@ class DatabaseProject:
             values ({besitzerID}, {haustierID}, {affinitaet});
             """)
 
-        except mariadb.IntegrityError as i_err:
-            print(f"█ Etwas ist schief gelaufen: {i_err}")
+        except mariadb.Error as err:
+            raise DBSException(function='createTeam()', message=err.__str__())
 
     def createDuellieren(self, avatar1: int, avatar2: int):
         cursor = self.connection.cursor()
@@ -193,8 +202,8 @@ class DatabaseProject:
             values ({avatar1}, {avatar2});
             """)
 
-        except mariadb.IntegrityError as i_err:
-            print(f"█ Etwas ist schief gelaufen: {i_err}")
+        except mariadb.Error as err:
+            raise DBSException(function='createDuellieren()', message=err.__str__())
 
     def deleteEigenschaft(self, id: int):
         cursor = self.connection.cursor()
@@ -204,8 +213,8 @@ class DatabaseProject:
             where (eigenschaften_id = {id});
             """)
 
-        except mariadb.IntegrityError as i_err:
-            print(f"█ Etwas ist schief gelaufen: {i_err}")
+        except mariadb.Error as err:
+            raise DBSException(function='deleteEigenschaft()', message=err.__str__())
 
     def deleteItem(self, id: int):
         cursor = self.connection.cursor()
@@ -215,8 +224,8 @@ class DatabaseProject:
             where (item_id = {id});
             """)
 
-        except mariadb.IntegrityError as i_err:
-            print(f"█ Etwas ist schief gelaufen: {i_err}")
+        except mariadb.Error as err:
+            raise DBSException(function='deleteItem()', message=err.__str__())
 
     def deleteEigenschaftenBesitzen(self, itemId: int, eigenschaftenID: int):
         cursor = self.connection.cursor()
@@ -227,8 +236,8 @@ class DatabaseProject:
             and (item_id = {itemId});
             """)
 
-        except mariadb.IntegrityError as i_err:
-            print(f"█ Etwas ist schief gelaufen: {i_err}")
+        except mariadb.Error as err:
+            raise DBSException(function='deleteEigenschaftenBesitzen()', message=err.__str__())
 
     def deleteShop(self, id: int):
         cursor = self.connection.cursor()
@@ -241,8 +250,8 @@ class DatabaseProject:
             and (besitzer_id = {id}));
             """)
 
-        except mariadb.IntegrityError as i_err:
-            print(f"█ Etwas ist schief gelaufen: {i_err}")
+        except mariadb.Error as err:
+            raise DBSException(function='deleteShop()', message=err.__str__())
 
     def deleteDungeon(self, id: int):
         cursor = self.connection.cursor()
@@ -255,8 +264,8 @@ class DatabaseProject:
             and (besitzer_id = {id});
             """)
 
-        except mariadb.IntegrityError as i_err:
-            print(f"█ Etwas ist schief gelaufen: {i_err}")
+        except mariadb.Error as err:
+            raise DBSException(function='deleteDungeon()', message=err.__str__())
 
     def deleteTeam(self, besitzerID: int, haustierID: int):
         cursor = self.connection.cursor()
@@ -269,8 +278,8 @@ class DatabaseProject:
             where (besitzer_id = {besitzerID});
             """)
 
-        except mariadb.IntegrityError as i_err:
-            print(f"█ Etwas ist schief gelaufen: {i_err}")
+        except mariadb.Error as err:
+            raise DBSException(function='deleteTeam()', message=err.__str__())
 
     def deleteDuellieren(self, besitzerID1: int, besitzerID2: int):
         cursor = self.connection.cursor()
@@ -281,73 +290,74 @@ class DatabaseProject:
             or (aid1 = {besitzerID2} and aid2 = {besitzerID1});
             """)
 
-        except mariadb.IntegrityError as i_err:
-            print(f"█ Etwas ist schief gelaufen: {i_err}")
+        except mariadb.Error as err:
+            raise DBSException(function='deleteDuellieren()', message=err.__str__())
 
     def createWorld(self):
         """
         Die Test-Müllhalde für unsere Datenbank.
         """
-        self.deleteAllProjectTables()
-        self.createProjectDBTables()
+        try:
+            self.createEigenschaft(eigenschaftenID=1001, name="Brennen")
+            self.createEigenschaft(eigenschaftenID=1002, name="Fruchtig")
 
-        self.createEigenschaft(eigenschaftenID=1001, name="Brennen")
-        self.createEigenschaft(eigenschaftenID=1002, name="Fruchtig")
+            self.createShop(besitzerID=2001, name="Edeka", geld=99999, adresse="Area 51", ladenBesitzer="Udo Lindenberg")
 
-        self.createShop(besitzerID=2001, name="Edeka", geld=99999, adresse="Area 51", ladenBesitzer="Udo Lindenberg")
+            self.createDungeon(besitzerID=6001, name="Datenbanksysteme", geld=1000, adresse="Universität", schwierigkeitsgrad=5)
+            self.createDungeon(besitzerID=6002, name="Arbeitswelt", geld=500, adresse="McDonalds", schwierigkeitsgrad=9)
 
-        self.createDungeon(besitzerID=6001, name="Datenbanksysteme", geld=1000, adresse="Universität", schwierigkeitsgrad=5)
-        self.createDungeon(besitzerID=6002, name="Arbeitswelt", geld=500, adresse="McDonalds", schwierigkeitsgrad=9)
+            self.createTeam(besitzerID=4001, avatarName="Eivor", geld=5000, staerke=740, magie=500, geschwindigkeit=320,
+                            rang=50, waffenPref="Assassinen-Klinge", geburtsdatum="0900-12-23", geburtsort="Norwegen",
+                            istIn=6001, affinitaet=100, haustierID=5001, haustierName="Sýnin", kampfkraft=10000, rasse="Rabe",
+                            niedlichkeitsfaktor=0.8)
 
-        self.createTeam(besitzerID=4001, avatarName="Eivor", geld=5000, staerke=740, magie=500, geschwindigkeit=320,
-                        rang=50, waffenPref="Assassinen-Klinge", geburtsdatum="0900-12-23", geburtsort="Norwegen",
-                        istIn=6002, affinitaet=100, haustierID=5001, haustierName="Sýnin", kampfkraft=10000, rasse="Rabe",
-                        niedlichkeitsfaktor=0.8)
+            self.createTeam(besitzerID=4002, avatarName="Geralt", geld=80, staerke=600, magie=400, geschwindigkeit=500,
+                            rang=25, waffenPref="Silberschwert", geburtsdatum="1168-01-18", geburtsort="Rivia",
+                            istIn=6002, affinitaet=100, haustierID=5002, haustierName="Einhorn", kampfkraft=0, rasse="Einhorn",
+                            niedlichkeitsfaktor=1.0)
 
-        self.createTeam(besitzerID=4002, avatarName="Geralt", geld=80, staerke=600, magie=400, geschwindigkeit=500,
-                        rang=25, waffenPref="Silberschwert", geburtsdatum="1168-01-18", geburtsort="Rivia",
-                        istIn=6002, affinitaet=100, haustierID=5002, haustierName="Einhorn", kampfkraft=0, rasse="Einhorn",
-                        niedlichkeitsfaktor=1.0)
+            self.createTeam(besitzerID=4003, avatarName="V", geld=25000, staerke=999, magie=0, geschwindigkeit=999, rang=50,
+                            waffenPref="Monowire", geburtsdatum="2049-06-10", geburtsort="Night City", istIn=2001,
+                            affinitaet=20, haustierID=5003, haustierName="Johnny", kampfkraft=9999, rasse="Mensch",
+                            niedlichkeitsfaktor=0.1)
 
-        self.createTeam(besitzerID=4003, avatarName="V", geld=25000, staerke=999, magie=0, geschwindigkeit=999, rang=50,
-                        waffenPref="Monowire", geburtsdatum="2049-06-10", geburtsort="Night City", istIn=2001,
-                        affinitaet=20, haustierID=5003, haustierName="Johnny", kampfkraft=9999, rasse="Mensch",
-                        niedlichkeitsfaktor=0.1)
+            self.createTeam(besitzerID=4004, avatarName="Atzmüller", geld=99999, staerke=300, magie=0, geschwindigkeit=250,
+                            rang=99, waffenPref="Notenvergabe", geburtsdatum="1970-01-01", geburtsort="Erde", istIn=2001,
+                            affinitaet=500, haustierID=5004, haustierName="Student", kampfkraft=1, rasse="Geringverdiener",
+                            niedlichkeitsfaktor=1.0)
 
-        self.createTeam(besitzerID=4004, avatarName="Atzmüller", geld=99999, staerke=300, magie=0, geschwindigkeit=250,
-                        rang=99, waffenPref="Notenvergabe", geburtsdatum="1970-01-01", geburtsort="Erde", istIn=2001,
-                        affinitaet=500, haustierID=5004, haustierName="Student", kampfkraft=1, rasse="Geringverdiener",
-                        niedlichkeitsfaktor=1.0)
+            self.createTeam(besitzerID=4005, avatarName="Prüfungsamt", geld=999, staerke=999, magie=999, geschwindigkeit=999,
+                            rang=99, waffenPref="Fehlversuch", geburtsdatum="0001-01-01", geburtsort="Jenseits", istIn=6001,
+                            affinitaet=1, haustierID=5005, haustierName="Beamter", kampfkraft=0, rasse="Arbeitsdrohne",
+                            niedlichkeitsfaktor=0.0)
 
-        self.createTeam(besitzerID=4005, avatarName="Prüfungsamt", geld=999, staerke=999, magie=999, geschwindigkeit=999,
-                        rang=99, waffenPref="Fehlversuch", geburtsdatum="0001-01-01", geburtsort="Jenseits", istIn=6001,
-                        affinitaet=1, haustierID=5005, haustierName="Beamter", kampfkraft=0, rasse="Arbeitsdrohne",
-                        niedlichkeitsfaktor=0.0)
+            self.createDuellieren(avatar1=4001, avatar2=4002)
+            self.createDuellieren(avatar1=4003, avatar2=4004)
+            self.createDuellieren(avatar1=4002, avatar2=4003)
+            self.createDuellieren(avatar1=4005, avatar2=4004)
+            self.createDuellieren(avatar1=4002, avatar2=4005)
+            self.createDuellieren(avatar1=4004, avatar2=4005)
 
-        self.createDuellieren(avatar1=4001, avatar2=4002)
-        self.createDuellieren(avatar1=4003, avatar2=4004)
-        self.createDuellieren(avatar1=4002, avatar2=4003)
-        self.createDuellieren(avatar1=4005, avatar2=4004)
-        self.createDuellieren(avatar1=4002, avatar2=4005)
-        self.createDuellieren(avatar1=4004, avatar2=4005)
+            self.createItem(itemID=3001, name="Mojito", geldwert=1500, besitzerID=2001)
+            self.createItem(itemID=3002, name="Tequila", geldwert=800, besitzerID=2001)
+            self.createItem(itemID=3003, name="Vodka-O", geldwert=400, besitzerID=2001)
 
-        self.createItem(itemID=3001, name="Mojito", geldwert=1500, besitzerID=2001)
-        self.createItem(itemID=3002, name="Tequila", geldwert=800, besitzerID=2001)
-        self.createItem(itemID=3003, name="Vodka-O", geldwert=400, besitzerID=2001)
+            self.createItem(itemID=3004, name="Old Fashioned", geldwert=2000, besitzerID=4003)
 
-        self.createItem(itemID=3004, name="Old Fashioned", geldwert=2000, besitzerID=4003)
+            self.createItem(itemID=3005, name="Datenbanksysteme-Schein", geldwert=500, besitzerID=4001)
+            self.createItem(itemID=3009, name="Datenbanksysteme-Schein", geldwert=500, besitzerID=4004)
 
-        self.createItem(itemID=3005, name="Datenbanksysteme-Schein", geldwert=500, besitzerID=4001)
-        self.createItem(itemID=3009, name="Datenbanksysteme-Schein", geldwert=500, besitzerID=4004)
+            self.createItem(itemID=3006, name="Fehlversuch", geldwert=0, besitzerID=4002)
+            self.createItem(itemID=3007, name="Fehlversuch", geldwert=0, besitzerID=4002)
+            self.createItem(itemID=3008, name="Fehlversuch", geldwert=0, besitzerID=4002)
 
-        self.createItem(itemID=3006, name="Fehlversuch", geldwert=0, besitzerID=4002)
-        self.createItem(itemID=3007, name="Fehlversuch", geldwert=0, besitzerID=4002)
-        self.createItem(itemID=3008, name="Fehlversuch", geldwert=0, besitzerID=4002)
+            self.createEigenschaftenBesitzen(eigenschaftenID=1001, itemID=3002)
+            self.createEigenschaftenBesitzen(eigenschaftenID=1002, itemID=3001)
 
-        self.createEigenschaftenBesitzen(eigenschaftenID=1001, itemID=3002)
-        self.createEigenschaftenBesitzen(eigenschaftenID=1002, itemID=3001)
+            self.connection.commit()
 
-        self.connection.commit()
+        except DBSException as err:
+            return err
 
     def doExerciseRA1(self) -> list[tuple]:
         """
@@ -363,8 +373,8 @@ class DatabaseProject:
 
             return cursor.fetchall()
 
-        except mariadb.IntegrityError as i_err:
-            print(f"█ Etwas ist schief gelaufen: {i_err}")
+        except mariadb.Error as err:
+            raise DBSException(function='doExerciseRA1()', message=err.__str__())
 
     def doExerciseRA2(self) -> list[tuple]:
         """
@@ -384,8 +394,8 @@ class DatabaseProject:
 
             return cursor.fetchall()
 
-        except mariadb.IntegrityError as i_err:
-            print(f"█ Etwas ist schief gelaufen: {i_err}")
+        except mariadb.Error as err:
+            raise DBSException(function='doExerciseRA2()', message=err.__str__())
 
     def doExerciseRA3(self) -> list[tuple]:
         """
@@ -404,8 +414,8 @@ class DatabaseProject:
 
             return cursor.fetchall()
 
-        except mariadb.IntegrityError as i_err:
-            print(f"█ Etwas ist schief gelaufen: {i_err}")
+        except mariadb.Error as err:
+            raise DBSException(function='doExerciseRA3()', message=err.__str__())
 
     def doExerciseTK1(self) -> list[tuple]:
         """
@@ -432,8 +442,8 @@ class DatabaseProject:
 
             return cursor.fetchall()
 
-        except mariadb.IntegrityError as i_err:
-            print(f"█ Etwas ist schief gelaufen: {i_err}")
+        except mariadb.Error as err:
+            raise DBSException(function='doExerciseTK1()', message=err.__str__())
 
     def doExerciseTK2(self) -> list[tuple]:
         """
@@ -451,8 +461,8 @@ class DatabaseProject:
 
             return cursor.fetchall()
 
-        except mariadb.IntegrityError as i_err:
-            print(f"█ Etwas ist schief gelaufen: {i_err}")
+        except mariadb.Error as err:
+            raise DBSException(function='doExerciseTK2()', message=err.__str__())
 
     def doExerciseTK3(self) -> list[tuple]:
         """
@@ -476,8 +486,8 @@ class DatabaseProject:
 
             return cursor.fetchall()
 
-        except mariadb.IntegrityError as i_err:
-            print(f"█ Etwas ist schief gelaufen: {i_err}")
+        except mariadb.Error as err:
+            raise DBSException(function='doExerciseTK3()', message=err.__str__())
 
     def doExerciseDK1(self) -> list[tuple]:
         """
@@ -495,8 +505,8 @@ class DatabaseProject:
 
             return cursor.fetchall()
 
-        except mariadb.IntegrityError as i_err:
-            print(f"█ Etwas ist schief gelaufen: {i_err}")
+        except mariadb.Error as err:
+            raise DBSException(function='doExerciseDK1()', message=err.__str__())
 
     def doExerciseDK2(self) -> list[tuple]:
         """
@@ -518,8 +528,8 @@ class DatabaseProject:
 
             return cursor.fetchall()
 
-        except mariadb.IntegrityError as i_err:
-            print(f"█ Etwas ist schief gelaufen: {i_err}")
+        except mariadb.Error as err:
+            raise DBSException(function='doExerciseDK2()', message=err.__str__())
 
     def doExerciseDK3(self) -> list[tuple]:
         """
@@ -539,8 +549,8 @@ class DatabaseProject:
 
             return cursor.fetchall()
 
-        except mariadb.IntegrityError as i_err:
-            print(f"█ Etwas ist schief gelaufen: {i_err}")
+        except mariadb.Error as err:
+            raise DBSException(function='doExerciseDK3()', message=err.__str__())
 
     def doExerciseSQL1(self) -> list[tuple]:
         """
@@ -559,8 +569,8 @@ class DatabaseProject:
 
             return cursor.fetchall()
 
-        except mariadb.IntegrityError as i_err:
-            print(f"█ Etwas ist schief gelaufen: {i_err}")
+        except mariadb.Error as err:
+            raise DBSException(function='doExerciseSQL1()', message=err.__str__())
 
     def doExerciseSQL2(self) -> list[tuple]:
         """
@@ -588,8 +598,8 @@ class DatabaseProject:
 
             return cursor.fetchall()
 
-        except mariadb.IntegrityError as i_err:
-            print(f"█ Etwas ist schief gelaufen: {i_err}")
+        except mariadb.Error as err:
+            raise DBSException(function='doExerciseSQL2()', message=err.__str__())
 
     def doExerciseSQL3(self) -> list[tuple]:
         """
@@ -612,8 +622,8 @@ class DatabaseProject:
 
             return cursor.fetchall()
 
-        except mariadb.IntegrityError as i_err:
-            print(f"█ Etwas ist schief gelaufen: {i_err}")
+        except mariadb.Error as err:
+            raise DBSException(function='doExerciseSQL3()', message=err.__str__())
 
     def doExerciseSQL4(self) -> list[tuple]:
         """
@@ -631,8 +641,8 @@ class DatabaseProject:
 
             return cursor.fetchall()
 
-        except mariadb.IntegrityError as i_err:
-            print(f"█ Etwas ist schief gelaufen: {i_err}")
+        except mariadb.Error as err:
+            raise DBSException(function='doExerciseSQL4()', message=err.__str__())
 
     def doExerciseSQL5(self) -> list[tuple]:
         """
@@ -653,8 +663,8 @@ class DatabaseProject:
 
             return [('Status', 'Update ausgeführt.')]
 
-        except mariadb.IntegrityError as i_err:
-            print(f"█ Etwas ist schief gelaufen: {i_err}")
+        except mariadb.Error as err:
+            raise DBSException(function='doExerciseSQL5()', message=err.__str__())
 
     def doExerciseSQL6(self) -> list[tuple]:
         """
@@ -679,8 +689,8 @@ class DatabaseProject:
 
             return [('Status', 'Löschen ausgeführt.')]
 
-        except mariadb.IntegrityError as i_err:
-            print(f"█ Etwas ist schief gelaufen: {i_err}")
+        except mariadb.Error as err:
+            raise DBSException(function='doExerciseSQL6()', message=err.__str__())
 
     def doExerciseSQL7(self) -> list[tuple]:
         """
@@ -706,8 +716,8 @@ class DatabaseProject:
 
             return [('Status', 'View erstellt.')]
 
-        except mariadb.IntegrityError as i_err:
-            print(f"█ Etwas ist schief gelaufen: {i_err}")
+        except mariadb.Error as err:
+            raise DBSException(function='doExerciseSQL7()', message=err.__str__())
 
     def doExerciseSQL8(self) -> list[tuple]:
         """
@@ -717,28 +727,23 @@ class DatabaseProject:
         :return: Liste aus Tupeln mit Ergebnissen.
         """
 
-        # cursor = self.connection.cursor()
-        # try:
-        #     cursor.execute("""
-        #     create trigger if not exists knechten
-        #     after update on avatar
-        #     for each row
-        #     update avatar a
-        #     set a.istin = (select b.besitzer_id from dungeon d
-        #     join besitzer b on d.besitzer_id = b.besitzer_id
-        #     where b.name = 'Arbeitswelt'
-        #     limit 1)
-        #     where a.istin = (select b.besitzer_id from dungeon d
-        #     join besitzer b on d.besitzer_id = b.besitzer_id
-        #     where b.name = 'Datenbanksysteme'
-        #     limit 1)
-        #     and a.besitzer_id in (select i.besitzer from item i
-        #     where i.name = 'Datenbanksysteme-Schein');
-        #     """)
-        #
-        #     return [('Status', 'Trigger erstellt.')]
-        #
-        # except mariadb.IntegrityError as i_err:
-        #     print(f"█ Etwas ist schief gelaufen: {i_err}")
+        cursor = self.connection.cursor()
+        try:
+            cursor.execute("""
+            create trigger if not exists knechten
+            after insert on item
+            for each row
+            if new.name = 'Datenbanksysteme-Schein' then
+            update avatar a
+            set a.istin = (select b.besitzer_id from besitzer b
+            where b.name = 'Arbeitswelt')
+            where a.istin = (select b.besitzer_id from besitzer b
+            where b.name = 'Datenbanksysteme')
+            and a.besitzer_id = new.besitzer;
+            end if;
+            """)
 
-        return [('Status', 'Trigger nicht erstellt.')]
+            return [('Status', 'Trigger erstellt.')]
+
+        except mariadb.Error as err:
+            raise DBSException(function='doExerciseSQL8()', message=err.__str__())
