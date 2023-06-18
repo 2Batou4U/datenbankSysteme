@@ -703,7 +703,7 @@ class DatabaseProject:
         cursor = self.connection.cursor()
         try:
             cursor.execute("""
-            create view if not exists dieb as
+            create view if not exists DiebSicht as
             select b.name,
             a.besitzer_id,
             coalesce(round((b.geld + 
