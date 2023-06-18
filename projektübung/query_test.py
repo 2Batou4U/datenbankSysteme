@@ -81,7 +81,6 @@ def start_test(clean_slate: bool, modify_data: bool):
         # Test zu SQL3
         sql3: list[tuple] = dbs_test.doExerciseSQL3()
         for data in sql3:
-            print(type(data[0]))
             logging.info(f"""{int(data[0] * 100)}% der Items 'Datenbanksysteme-Schein' werden von Spielern besessen.""")
 
         # Test zu SQL4
