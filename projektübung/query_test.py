@@ -81,6 +81,7 @@ def start_test(clean_slate: bool, modify_data: bool):
         # Test zu SQL3
         sql3: list[tuple] = dbs_test.doExerciseSQL3()
         for data in sql3:
+            print(type(data[0]))
             logging.info(f"""{int(data[0] * 100)}% der Items 'Datenbanksysteme-Schein' werden von Spielern besessen.""")
 
         # Test zu SQL4
@@ -114,4 +115,4 @@ def start_test(clean_slate: bool, modify_data: bool):
         logging.error(dbs_err)
 
 
-start_test(clean_slate=True, modify_data=False)
+start_test(clean_slate=True, modify_data=True)
