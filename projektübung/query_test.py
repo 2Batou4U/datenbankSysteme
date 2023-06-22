@@ -114,4 +114,4 @@ def start_test(clean_slate: bool, modify_data: bool):
         logging.error(dbs_err)
 
 
-start_test(clean_slate=True, modify_data=False)
+start_test(clean_slate=True, modify_data=True)

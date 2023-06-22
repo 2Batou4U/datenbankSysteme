@@ -16,8 +16,10 @@ class DatabaseProject:
     """
     DatabaseProject enthält alle wichtigen Methoden, um die von uns erstellte Fantasy-Welt zu testen.
     """
-
     def __init__(self):
+        """
+        Hält nur die Variable connection: mariadb.Connection
+        """
         self.connection: mariadb.Connection | None = None
 
     def connectToMariaDB(self, user: str, pw: str, host: str, database: str, port: int = 3306):
@@ -39,6 +41,7 @@ class DatabaseProject:
                 port=port,
                 database=database,
                 client_flag=CLIENT.MULTI_STATEMENTS,
+                autocommit=True
             )
 
         except mariadb.Error as err:
@@ -101,8 +104,6 @@ class DatabaseProject:
         except mariadb.Error as err:
             raise DBSException(function='deleteAllProjectTables()', message=err.__str__())
 
-    # yes handling IDs manually is not optimal, however for our little project and for testing this should be
-    # manageable! Implement all create and delete methods for each entity
     def createEigenschaft(self, eigenschaftenID: int, name: str):
         cursor = self.connection.cursor()
         try:
@@ -331,6 +332,11 @@ class DatabaseProject:
                             affinitaet=1, haustierID=5005, haustierName="Beamter", kampfkraft=0, rasse="Arbeitsdrohne",
                             niedlichkeitsfaktor=0.0)
 
+            self.createTeam(besitzerID=4006, avatarName="Alexios", geld=100, staerke=2000, magie=0, geschwindigkeit=500, rang=90,
+                            waffenPref="Assassinen-Klinge", geburtsdatum="451-01-01", geburtsort="Griechenland", istIn=2001,
+                            affinitaet=100, haustierID=5006, haustierName="Ikaros", kampfkraft=9999, rasse="Adler",
+                            niedlichkeitsfaktor=1.0)
+
             self.createDuellieren(avatar1=4001, avatar2=4002)
             self.createDuellieren(avatar1=4003, avatar2=4004)
             self.createDuellieren(avatar1=4002, avatar2=4003)
@@ -353,8 +359,6 @@ class DatabaseProject:
 
             self.createEigenschaftenBesitzen(eigenschaftenID=1001, itemID=3002)
             self.createEigenschaftenBesitzen(eigenschaftenID=1002, itemID=3001)
-
-            self.connection.commit()
 
         except DBSException as err:
             return err
@@ -703,7 +707,7 @@ class DatabaseProject:
         cursor = self.connection.cursor()
         try:
             cursor.execute("""
-            create view if not exists dieb as
+            create view if not exists DiebSicht as
             select b.name,
             a.besitzer_id,
             coalesce(round((b.geld + 
